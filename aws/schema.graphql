@@ -1,0 +1,24 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+  getConvo(convoId: ID!): Convo!
+}
+
+type Mutation {
+    createConvo(storeId: ID!, customerId: ID): Convo!
+}
+
+type Convo {
+    storeId: ID!
+    convoId: ID!
+    userId: ID!
+    messages: [Message]
+}
+
+type Message {
+  userId: ID!
+  message: String
+}
