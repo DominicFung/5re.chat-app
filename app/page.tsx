@@ -1,91 +1,69 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+"use client"
+import { useEffect, useState, useContext } from "react";
+import secret from "../secret.json"
 
-const inter = Inter({ subsets: ['latin'] })
-
+interface User {
+  avatar_url: string,
+  name: string,
+  public_repos: string,
+  followers: string
+  following: string
+}
+// http://localhost:3000/?code=f238ef421c89fd0342fc
 export default function Home() {
+  const [ user, setUser ] = useState<User>()
+  const [ loading, setLoading ] = useState(false)
+
+  const processLogin = async (url: string ) => {
+    const newUrl = url.split("?code=")
+    setLoading(true)
+
+    const requestData = { code: newUrl[1] }
+    console.log(JSON.stringify(requestData))
+
+    const data = await (await fetch(`/api/authenticate`, {
+      method: "POST",
+      body: JSON.stringify(requestData)
+    })).json()
+
+    setUser(data)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    const url = window.location.href;
+    const hasCode = url.includes("?code=")
+    if (hasCode) { processLogin(url) }
+  }, [])
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
+    <main className="m-5">
+      {!user && <div>
+        <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github.clientId}&redirect_uri=${"http://localhost:3000"}`}>
+          <button 
+            className="focus:outline-none text-white bg-purple-300 hover:bg-purple-400 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors border-2 border-purple-600 hover:border-purple-700">
+            <span className='flex flex-row'>
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-8 w-8 fill-slate-900">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z">
+                </path>
+              </svg>
+              <span className='px-3 pl-4 py-1 text-gray-800'>Login</span>
+            </span>
+          </button>
+        </a>
+      </div>}
+      { user && <div className="container">
+        <button onClick={() => {}}>Logout</button>
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <div className="content">
+            <img src={user.avatar_url} alt="Avatar"/>
+            <span>{user.name}</span>
+            <span>{user.public_repos} Repos</span>
+            <span>{user.followers} Followers</span>
+            <span>{user.following} Following</span>
+          </div>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      </div>}
     </main>
   )
 }

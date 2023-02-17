@@ -13,8 +13,8 @@ export class AppsyncStack extends Stack {
   constructor(app: App, id: string, props: AppsyncProps) {
     super(app, id)
 
-    const api = new GraphqlApi(this, 'Api', {
-      name: `${props.name}-Appsync`,
+    const api = new GraphqlApi(this, `${props.name}-Appsync`, {
+      name: `${props.name}`,
       schema: SchemaFile.fromAsset(path.join(__dirname, "../", 'schema.graphql')),
       authorizationConfig: {
         defaultAuthorization: {

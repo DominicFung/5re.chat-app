@@ -1,24 +1,59 @@
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }
 
 type Query {
-  getConvo(convoId: ID!): Convo!
+  getSessionToken(apiKey: String!): String!
+
+  getUser(sessionToken: String!): User!  
+  getConvo(sessionToken: String!, convoId: ID!): Convo!
 }
 
 type Mutation {
-    createConvo(storeId: ID!, customerId: ID): Convo!
+  # 5re.chat app
+  createUser(masterSecret: String!, username: String!, avatarUrl: String): _User!
+  updateUserDiscordGuild(masterSecret: String!, userId: ID!, discordGuildId: String!): _User!
+  refreshUserApiKey(masterSecret: String!, userId: ID!): String!
+  addOwnerMessage(masterSecret: String!, discordChannelId: String!, message: String!): String!
+
+  # 5re.chat
+  createConvo(sessionToken: String!): Convo!
+  addMessage(sessionToken: String!, convoId: ID!, message: String!): String!
+}
+
+type User {
+  username: String!
+  avatarUrl: String!
+  setupComplete: Boolean!
+}
+
+type _User {
+  userId: ID!
+  apiKey: String!
+  username: String!
+  avatarUrl: String!
+  discordGuildId: String!
 }
 
 type Convo {
-    storeId: ID!
-    convoId: ID!
-    userId: ID!
-    messages: [Message]
+  convoId: ID!
+  messages: [Message]
+}
+
+type _Convo {
+  convoId: ID!
+  apiKey: String!
+  discordChannelId: String!
+  messages: [Message]
+}
+
+enum UserType {
+  OWNER
+  CUSTOMER
 }
 
 type Message {
-  userId: ID!
+  userType: UserType
   message: String
 }

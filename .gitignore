@@ -36,6 +36,9 @@ yarn-error.log*
 next-env.d.ts
 
 secret.json
+frontend.secret.json
+backend.secret.json
+
 /output
 token.txt
 /aws/**/*.js
@@ -50,11 +53,22 @@ aws-exports.js
 .graphqlconfig.yml
 amplify/
 
+
+.env.local.bak
+
+chromium
+chromiumci
+
+tmp
+
+secret.ts
+
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
 amplify/logs
 amplify/mock-data
+amplify/mock-api-resources
 amplify/backend/amplify-meta.json
 amplify/backend/.temp
 build/
@@ -71,11 +85,3 @@ amplifytools.xcconfig
 **.sample
 #amplify-do-not-edit-end
 
-.env.local.bak
-
-chromium
-chromiumci
-
-tmp
-
-secret.ts
