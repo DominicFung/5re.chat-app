@@ -6,15 +6,18 @@ export const createUser = /* GraphQL */ `
   mutation CreateUser(
     $masterSecret: String!
     $username: String!
-    $avatarUrl: String
+    $avatarUrl: String!
+    $githubId: String!
   ) {
     createUser(
       masterSecret: $masterSecret
       username: $username
       avatarUrl: $avatarUrl
+      githubId: $githubId
     ) {
       userId
       apiKey
+      githubId
       username
       avatarUrl
       discordGuildId
@@ -34,6 +37,7 @@ export const updateUserDiscordGuild = /* GraphQL */ `
     ) {
       userId
       apiKey
+      githubId
       username
       avatarUrl
       discordGuildId

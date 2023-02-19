@@ -1,10 +1,9 @@
 import { createContext, useContext } from "react"
-
-export interface User {}
+import { _User } from "@/src/API"
 
 interface IUserContext {
-  user: User | undefined
-  setUser: (user: User) => void
+  user: _User | undefined
+  setUser: (user: _User) => void
 }
 
 export const UserContext = createContext<IUserContext>({

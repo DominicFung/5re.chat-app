@@ -1,17 +1,13 @@
 "use client"
-import { useEffect, useState, useContext } from "react";
-import secret from "../secret.json"
+import { useUserContext } from "@/context/usercontext"
+import { useEffect, useState } from "react"
+import secret from "../frontend.secret.json"
 
-interface User {
-  avatar_url: string,
-  name: string,
-  public_repos: string,
-  followers: string
-  following: string
-}
+const _ENV = process.env.NODE_ENV as "development" | "production"
+
 // http://localhost:3000/?code=f238ef421c89fd0342fc
 export default function Home() {
-  const [ user, setUser ] = useState<User>()
+  const { user, setUser } = useUserContext()
   const [ loading, setLoading ] = useState(false)
 
   const processLogin = async (url: string ) => {
@@ -21,7 +17,7 @@ export default function Home() {
     const requestData = { code: newUrl[1] }
     console.log(JSON.stringify(requestData))
 
-    const data = await (await fetch(`/api/authenticate`, {
+    const data = await (await fetch(`/api/user/github/login`, {
       method: "POST",
       body: JSON.stringify(requestData)
     })).json()
@@ -39,7 +35,7 @@ export default function Home() {
   return (
     <main className="m-5">
       {!user && <div>
-        <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github.clientId}&redirect_uri=${"http://localhost:3000"}`}>
+        <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${"http://localhost:3000"}`}>
           <button 
             className="focus:outline-none text-white bg-purple-300 hover:bg-purple-400 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors border-2 border-purple-600 hover:border-purple-700">
             <span className='flex flex-row'>
@@ -56,11 +52,8 @@ export default function Home() {
         <button onClick={() => {}}>Logout</button>
         <div>
           <div className="content">
-            <img src={user.avatar_url} alt="Avatar"/>
-            <span>{user.name}</span>
-            <span>{user.public_repos} Repos</span>
-            <span>{user.followers} Followers</span>
-            <span>{user.following} Following</span>
+            <img src={user.avatarUrl} alt="Avatar"/>
+            <span>{user.username}</span>
           </div>
         </div>
       </div>}

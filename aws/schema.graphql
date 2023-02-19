@@ -4,15 +4,17 @@ schema {
 }
 
 type Query {
-  getSessionToken(apiKey: String!): String!
+  #5re.chat app
+  getUser(masterSecret: String!, userId: ID!): _User!
 
-  getUser(sessionToken: String!): User!  
+  # 5re.chat
+  getSessionToken(apiKey: String!): String!
   getConvo(sessionToken: String!, convoId: ID!): Convo!
 }
 
 type Mutation {
   # 5re.chat app
-  createUser(masterSecret: String!, username: String!, avatarUrl: String): _User!
+  createUser(masterSecret: String!, username: String!, avatarUrl: String!, githubId: String!): _User! @aws_iam
   updateUserDiscordGuild(masterSecret: String!, userId: ID!, discordGuildId: String!): _User!
   refreshUserApiKey(masterSecret: String!, userId: ID!): String!
   addOwnerMessage(masterSecret: String!, discordChannelId: String!, message: String!): String!
@@ -22,17 +24,29 @@ type Mutation {
   addMessage(sessionToken: String!, convoId: ID!, message: String!): String!
 }
 
+type Subscription {
+  # 5re.chat app
+  convoCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["createConvo"])
+  messageCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["addMessage"])
+
+  # 5re.chat
+  onMessage(sessionToken: String!): Convo @aws_subscribe(mutations: ["addMessage"])
+}
+
 type User {
   username: String!
   avatarUrl: String!
   setupComplete: Boolean!
 }
 
-type _User {
+type _User @aws_iam {
   userId: ID!
   apiKey: String!
+
+  githubId: String!
   username: String!
   avatarUrl: String!
+
   discordGuildId: String!
 }
 

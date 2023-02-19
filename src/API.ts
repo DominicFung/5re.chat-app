@@ -6,6 +6,7 @@ export type _User = {
   __typename: "_User",
   userId: string,
   apiKey: string,
+  githubId: string,
   username: string,
   avatarUrl: string,
   discordGuildId: string,
@@ -29,17 +30,11 @@ export enum UserType {
 }
 
 
-export type User = {
-  __typename: "User",
-  username: string,
-  avatarUrl: string,
-  setupComplete: boolean,
-};
-
 export type CreateUserMutationVariables = {
   masterSecret: string,
   username: string,
-  avatarUrl?: string | null,
+  avatarUrl: string,
+  githubId: string,
 };
 
 export type CreateUserMutation = {
@@ -48,6 +43,7 @@ export type CreateUserMutation = {
     __typename: "_User",
     userId: string,
     apiKey: string,
+    githubId: string,
     username: string,
     avatarUrl: string,
     discordGuildId: string,
@@ -65,6 +61,7 @@ export type UpdateUserDiscordGuildMutation = {
     __typename: "_User",
     userId: string,
     apiKey: string,
+    githubId: string,
     username: string,
     avatarUrl: string,
     discordGuildId: string,
@@ -117,25 +114,31 @@ export type AddMessageMutation = {
   addMessage: string,
 };
 
+export type GetUserQueryVariables = {
+  masterSecret: string,
+  userId: string,
+};
+
+export type GetUserQuery = {
+  // 5re.chat app
+  getUser:  {
+    __typename: "_User",
+    userId: string,
+    apiKey: string,
+    githubId: string,
+    username: string,
+    avatarUrl: string,
+    discordGuildId: string,
+  },
+};
+
 export type GetSessionTokenQueryVariables = {
   apiKey: string,
 };
 
 export type GetSessionTokenQuery = {
+  // 5re.chat
   getSessionToken: string,
-};
-
-export type GetUserQueryVariables = {
-  sessionToken: string,
-};
-
-export type GetUserQuery = {
-  getUser:  {
-    __typename: "User",
-    username: string,
-    avatarUrl: string,
-    setupComplete: boolean,
-  },
 };
 
 export type GetConvoQueryVariables = {

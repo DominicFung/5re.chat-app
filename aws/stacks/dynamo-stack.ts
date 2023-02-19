@@ -12,10 +12,29 @@ export class DynamoStack extends Stack {
   constructor(app: App, id: string, props: DynamoProps) {
     super(app, id)
 
-    const chatTable = new Table(this, `${props.name}-ChatTable`, {
-      tableName: `${props.name}-ChatTable`,
+    // const chatTable = new Table(this, `${props.name}-ChatTable`, {
+    //   tableName: `${props.name}-ChatTable`,
+    //   partitionKey: {
+    //     name: `chatId`,
+    //     type: AttributeType.STRING
+    //   },
+    //   billingMode: BillingMode.PAY_PER_REQUEST,
+    //   stream: StreamViewType.NEW_IMAGE,
+    //   removalPolicy: RPOLICY
+    // })
+
+    // new CfnOutput(this, `${props.name}-ChatTableName`, {
+    //   value: chatTable.tableName,
+    // })
+
+    // new CfnOutput(this, `${props.name}-ChatTableArn`, {
+    //   value: chatTable.tableArn,
+    // })
+
+    const userTable = new Table(this, `${props.name}-UserTable`, {
+      tableName: `${props.name}-UserTable`,
       partitionKey: {
-        name: `chatId`,
+        name: `userId`,
         type: AttributeType.STRING
       },
       billingMode: BillingMode.PAY_PER_REQUEST,
@@ -23,15 +42,22 @@ export class DynamoStack extends Stack {
       removalPolicy: RPOLICY
     })
 
-    new CfnOutput(this, `${props.name}-ChatTableName`, {
-      value: chatTable.tableName,
-      exportName: `ChatTableName`
+    userTable.addGlobalSecondaryIndex({
+      indexName: 'apiKey',
+      partitionKey: {
+        name: 'apiKey',
+        type: AttributeType.STRING
+      }
     })
 
-    new CfnOutput(this, `${props.name}-ChatTableArn`, {
-      value: chatTable.tableArn,
-      exportName: `ChatTableArn`
+    new CfnOutput(this, `${props.name}-UserTableName`, {
+      value: userTable.tableName,
+      exportName: `${props.name}-UserTableName`
     })
 
+    new CfnOutput(this, `${props.name}-UserTableArn`, {
+      value: userTable.tableArn,
+      exportName: `${props.name}-UserTableArn`
+    })
   }
 }
