@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.245.0",
     "@aws-sdk/util-utf8-node": "^3.208.0",
+    "@hapi/iron": "^7.0.1",
     "aws-sdk": "^2.1197.0"
   }
 }

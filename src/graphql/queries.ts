@@ -7,26 +7,19 @@ export const getUser = /* GraphQL */ `
     getUser(masterSecret: $masterSecret, userId: $userId) {
       userId
       apiKey
+      unseal
       githubId
       username
       avatarUrl
       discordGuildId
+      sessionTimeout
     }
   }
 `;
-export const getSessionToken = /* GraphQL */ `
-  query GetSessionToken($apiKey: String!) {
-    getSessionToken(apiKey: $apiKey)
-  }
-`;
-export const getConvo = /* GraphQL */ `
-  query GetConvo($sessionToken: String!, $convoId: ID!) {
-    getConvo(sessionToken: $sessionToken, convoId: $convoId) {
-      convoId
-      messages {
-        userType
-        message
-      }
+export const getMessages = /* GraphQL */ `
+  query GetMessages($sessionToken: String!) {
+    getMessages(sessionToken: $sessionToken) {
+      encrypted
     }
   }
 `;

@@ -8,7 +8,7 @@ echo $OLDAPPSYNC
 echo
 
 echo "tsc & cdk deploy ..."
-tsc & cdk deploy --all --outputs-file ./cdk-outputs.json --profile juju 
+tsc & cdk deploy --all --outputs-file ./cdk-outputs.json --profile juju --require-approval never
 
 echo "copying cdk-outputs.json ..."
 cp -f cdk-outputs.json ../cdk-outputs.json 

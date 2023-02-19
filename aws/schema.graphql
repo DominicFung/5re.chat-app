@@ -8,8 +8,8 @@ type Query {
   getUser(masterSecret: String!, userId: ID!): _User!
 
   # 5re.chat
-  getSessionToken(apiKey: String!): String!
-  getConvo(sessionToken: String!, convoId: ID!): Convo!
+  #  - sessionToken will have sealed the convoId
+  getMessages(sessionToken: String!): [Message]!
 }
 
 type Mutation {
@@ -20,13 +20,13 @@ type Mutation {
   addOwnerMessage(masterSecret: String!, discordChannelId: String!, message: String!): String!
 
   # 5re.chat
-  createConvo(sessionToken: String!): Convo!
-  addMessage(sessionToken: String!, convoId: ID!, message: String!): String!
+  createSession(apiKey: String!): Convo!
+  addMessage(sessionToken: String!, message: String!): String!
 }
 
 type Subscription {
   # 5re.chat app
-  convoCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["createConvo"])
+  convoCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["createSession"])
   messageCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["addMessage"])
 
   # 5re.chat
@@ -42,23 +42,28 @@ type User {
 type _User @aws_iam {
   userId: ID!
   apiKey: String!
+  unseal: String!
 
   githubId: String!
   username: String!
   avatarUrl: String!
-
+  
+  # Setup
   discordGuildId: String!
+  sessionTimeout: Int!
 }
 
 type Convo {
-  convoId: ID!
-  messages: [Message]
+  messageToken: String! # use to decrypt messages for this session.
+  sessionToken: String!
 }
 
 type _Convo {
+  userId: ID!
   convoId: ID!
-  apiKey: String!
-  discordChannelId: String!
+  apiKeyUsed: String!
+  messageToken: String!
+  sessionStartTime: String!
   messages: [Message]
 }
 
@@ -67,7 +72,13 @@ enum UserType {
   CUSTOMER
 }
 
+# unseal using apiKey
 type Message {
-  userType: UserType
-  message: String
+  encrypted: String!
+}
+
+type _Message {
+  sendDate: String!
+  userType: UserType!
+  message: String!
 }

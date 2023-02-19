@@ -1,7 +1,7 @@
-import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import { AppSyncResolverEvent } from 'aws-lambda'
-import { marshall } from '@aws-sdk/util-dynamodb'
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { DynamoDBClient, PutItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb'
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { v4 as uuidv4 } from 'uuid'
 import { _User } from '../../src/API'
@@ -28,31 +28,50 @@ export const handler = async (event: AppSyncResolverEvent<{
   
   if (!b.avatarUrl) { console.error(`event.arguments is empty`); return }
   if (!b.username) { console.error(`event.username is empty`); return }
-  
-  const userId = uuidv4()
-  const apiKey = uuidv4().replace(/-/g, "")
-  
-  /** 
-   * NOTE! api keys should always start with: "5c_" 
-   * But we don't store with that, because dynamo partition will not be effective.
-   */
-  const user = { 
-    userId, apiKey, username: b.username, 
-    avatarUrl: b.avatarUrl, githubId: b.githubId, 
-    discordGuildId: "" 
-  } as _User
-  console.log(`new user: ${JSON.stringify(user, null, 2)}`)
+  if (!b.githubId) { console.error(`event.githubId is empty`); return }
 
   const dynamo = new DynamoDBClient({})
-  const res = await dynamo.send(
-    new PutItemCommand({
+
+  /** Check githubId, to see if user already exists */
+  const res0 = await dynamo.send(
+    new QueryCommand({
       TableName: USER_TABLE_NAME,
-      Item: marshall(user)
+      IndexName: "githubId",
+      KeyConditionExpression: "githubId = :key",
+      ExpressionAttributeValues: { ":key": { S: b.githubId } }
     })
   )
 
-  console.log(res)
-  return user
+  if (!res0 || !res0.Count ) { console.error(`dynamo did not return a res0 for githubId`); return }
+  if (res0.Count! > 0 && res0.Items) {
+    console.log(" === USER ALREADY EXIST === ")
+
+    const user = unmarshall(res0.Items[0]) as _User
+    return user
+  } else {
+    const userId = uuidv4()
+    const apiKey = uuidv4().replace(/-/g, "")
+    
+    /** 
+     * NOTE! api keys should always start with: "5c_" 
+     * But we don't store with that, because dynamo partition will not be effective.
+     */
+    const user = { 
+      userId, apiKey, username: b.username, 
+      avatarUrl: b.avatarUrl, githubId: b.githubId, 
+      discordGuildId: "" 
+    } as _User
+    console.log(`new user: ${JSON.stringify(user, null, 2)}`)
+
+    const res1 = await dynamo.send(
+      new PutItemCommand({
+        TableName: USER_TABLE_NAME,
+        Item: marshall(user)
+      })
+    )
+    console.log(res1)
+    return user
+  }
 }
 
 /**

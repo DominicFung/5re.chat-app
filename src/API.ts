@@ -6,29 +6,26 @@ export type _User = {
   __typename: "_User",
   userId: string,
   apiKey: string,
+  unseal: string,
   githubId: string,
   username: string,
   avatarUrl: string,
+  // Setup
   discordGuildId: string,
+  sessionTimeout: number,
 };
 
 export type Convo = {
   __typename: "Convo",
-  convoId: string,
-  messages?:  Array<Message | null > | null,
+  messageToken: string,
+  // use to decrypt messages for this session.
+  sessionToken: string,
 };
 
 export type Message = {
   __typename: "Message",
-  userType?: UserType | null,
-  message?: string | null,
+  encrypted: string,
 };
-
-export enum UserType {
-  OWNER = "OWNER",
-  CUSTOMER = "CUSTOMER",
-}
-
 
 export type CreateUserMutationVariables = {
   masterSecret: string,
@@ -43,10 +40,13 @@ export type CreateUserMutation = {
     __typename: "_User",
     userId: string,
     apiKey: string,
+    unseal: string,
     githubId: string,
     username: string,
     avatarUrl: string,
+    // Setup
     discordGuildId: string,
+    sessionTimeout: number,
   },
 };
 
@@ -61,10 +61,13 @@ export type UpdateUserDiscordGuildMutation = {
     __typename: "_User",
     userId: string,
     apiKey: string,
+    unseal: string,
     githubId: string,
     username: string,
     avatarUrl: string,
+    // Setup
     discordGuildId: string,
+    sessionTimeout: number,
   },
 };
 
@@ -87,26 +90,22 @@ export type AddOwnerMessageMutation = {
   addOwnerMessage: string,
 };
 
-export type CreateConvoMutationVariables = {
-  sessionToken: string,
+export type CreateSessionMutationVariables = {
+  apiKey: string,
 };
 
-export type CreateConvoMutation = {
+export type CreateSessionMutation = {
   // 5re.chat
-  createConvo:  {
+  createSession:  {
     __typename: "Convo",
-    convoId: string,
-    messages?:  Array< {
-      __typename: "Message",
-      userType?: UserType | null,
-      message?: string | null,
-    } | null > | null,
+    messageToken: string,
+    // use to decrypt messages for this session.
+    sessionToken: string,
   },
 };
 
 export type AddMessageMutationVariables = {
   sessionToken: string,
-  convoId: string,
   message: string,
 };
 
@@ -125,35 +124,25 @@ export type GetUserQuery = {
     __typename: "_User",
     userId: string,
     apiKey: string,
+    unseal: string,
     githubId: string,
     username: string,
     avatarUrl: string,
+    // Setup
     discordGuildId: string,
+    sessionTimeout: number,
   },
 };
 
-export type GetSessionTokenQueryVariables = {
-  apiKey: string,
-};
-
-export type GetSessionTokenQuery = {
-  // 5re.chat
-  getSessionToken: string,
-};
-
-export type GetConvoQueryVariables = {
+export type GetMessagesQueryVariables = {
   sessionToken: string,
-  convoId: string,
 };
 
-export type GetConvoQuery = {
-  getConvo:  {
-    __typename: "Convo",
-    convoId: string,
-    messages?:  Array< {
-      __typename: "Message",
-      userType?: UserType | null,
-      message?: string | null,
-    } | null > | null,
-  },
+export type GetMessagesQuery = {
+  // 5re.chat
+  // - sessionToken will have sealed the convoId
+  getMessages:  Array< {
+    __typename: "Message",
+    encrypted: string,
+  } | null >,
 };

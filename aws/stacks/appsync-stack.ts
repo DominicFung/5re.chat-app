@@ -1,5 +1,5 @@
 import { App, CfnOutput, Duration, Expiration, Fn, Stack } from 'aws-cdk-lib'
-import { GraphqlApi, SchemaFile, AuthorizationType } from 'aws-cdk-lib/aws-appsync'
+import { GraphqlApi, SchemaFile, AuthorizationType, FieldLogLevel } from 'aws-cdk-lib/aws-appsync'
 import { ManagedPolicy, Policy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -16,6 +16,9 @@ export class AppsyncStack extends Stack {
     const userDynamoName = Fn.importValue(`${props.name}-UserTableName`)
     const userDynamoArn = Fn.importValue(`${props.name}-UserTableArn`)
 
+    const convoDynamoName = Fn.importValue(`${props.name}-ConvoTableName`)
+    const convoDynamoArn = Fn.importValue(`${props.name}-ConvoTableArn`)
+
     const api = new GraphqlApi(this, `${props.name}-Appsync`, {
       name: `${props.name}`,
       schema: SchemaFile.fromAsset(path.join(__dirname, "../", 'schema.graphql')),
@@ -28,27 +31,17 @@ export class AppsyncStack extends Stack {
         },
       },
       xrayEnabled: true,
+      logConfig: { excludeVerboseContent: true, fieldLogLevel: FieldLogLevel.ALL }, // remove later
     });
 
-    new CfnOutput(this, "GraphQLAPIURL", {
-     value: api.graphqlUrl
-    });
-
-    new CfnOutput(this, "GraphQLAPIKey", {
-      value: api.apiKey || ''
-    });
-
-    new CfnOutput(this, "Stack Region", {
-      value: this.region
-    })
+    new CfnOutput(this, "GraphQLAPIURL", { value: api.graphqlUrl })
+    new CfnOutput(this, "GraphQLAPIKey", { value: api.apiKey || '' })
+    new CfnOutput(this, "Stack Region", { value: this.region })
+    new CfnOutput(this, `${props.name}-AppsyncId`, { value: api.apiId })
 
     new CfnOutput(this, `${props.name}-AppsyncArn`, {
       value: api.arn,
       exportName: `${props.name}-AppsyncArn`
-    })
-
-    new CfnOutput(this, `${props.name}-AppsyncId`, {
-      value: api.apiId
     })
 
     const excRole = new Role(this, `${props.name}-SocialMediaLambdaRole`, {
@@ -74,7 +67,7 @@ export class AppsyncStack extends Stack {
           }),
           new PolicyStatement({
             actions: [ "dynamodb:*" ],
-            resources: [ `${userDynamoArn}*` ]
+            resources: [ `${userDynamoArn}*`, `${convoDynamoArn}*` ]
           }),
           new PolicyStatement({
             actions: [ "lambda:InvokeFunction" ],
@@ -88,7 +81,10 @@ export class AppsyncStack extends Stack {
       role: excRole,
       bundling: { externalModules: ['aws-sdk'] },
       depsLockFilePath: join(__dirname, '../lambdas', 'package-lock.json'),
-      environment: { USER_TABLE_NAME: userDynamoName },
+      environment: { 
+        USER_TABLE_NAME: userDynamoName,
+        CONVO_TABLE_NAME: convoDynamoName
+      },
       runtime: Runtime.NODEJS_16_X,
     }
 
@@ -104,9 +100,17 @@ export class AppsyncStack extends Stack {
       ...nodeJsFunctionProps
     })
 
+    const createSession = new NodejsFunction(this, `${props.name}-CreateSession`, {
+      entry: join(__dirname, '../lambdas', 'createSession.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
+
+
     // issue with "-" in addLambdaDataSource, do not add
     const createConvoDS =  api.addLambdaDataSource(`${props.name}CreateConvoDS`, createConvo)
     const createUserDS = api.addLambdaDataSource(`${props.name}CreateUserDS`, createUser)
+    const createSessionDS = api.addLambdaDataSource(`${props.name}CreateSessionDS`, createSession)
 
     createConvoDS.createResolver(`${props.name}-CreateConvoResolver`, {
       typeName: "Mutation",
@@ -116,6 +120,11 @@ export class AppsyncStack extends Stack {
     createUserDS.createResolver(`${props.name}-CreateUserResolver`, {
       typeName: "Mutation",
       fieldName: "createUser"
+    })
+
+    createSessionDS.createResolver(`${props.name}-CreateSessionResolver`, {
+      typeName: "Mutation",
+      fieldName: 'createSession'
     })
   }
 }

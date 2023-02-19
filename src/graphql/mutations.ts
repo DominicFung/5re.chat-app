@@ -17,10 +17,12 @@ export const createUser = /* GraphQL */ `
     ) {
       userId
       apiKey
+      unseal
       githubId
       username
       avatarUrl
       discordGuildId
+      sessionTimeout
     }
   }
 `;
@@ -37,10 +39,12 @@ export const updateUserDiscordGuild = /* GraphQL */ `
     ) {
       userId
       apiKey
+      unseal
       githubId
       username
       avatarUrl
       discordGuildId
+      sessionTimeout
     }
   }
 `;
@@ -62,27 +66,16 @@ export const addOwnerMessage = /* GraphQL */ `
     )
   }
 `;
-export const createConvo = /* GraphQL */ `
-  mutation CreateConvo($sessionToken: String!) {
-    createConvo(sessionToken: $sessionToken) {
-      convoId
-      messages {
-        userType
-        message
-      }
+export const createSession = /* GraphQL */ `
+  mutation CreateSession($apiKey: String!) {
+    createSession(apiKey: $apiKey) {
+      messageToken
+      sessionToken
     }
   }
 `;
 export const addMessage = /* GraphQL */ `
-  mutation AddMessage(
-    $sessionToken: String!
-    $convoId: ID!
-    $message: String!
-  ) {
-    addMessage(
-      sessionToken: $sessionToken
-      convoId: $convoId
-      message: $message
-    )
+  mutation AddMessage($sessionToken: String!, $message: String!) {
+    addMessage(sessionToken: $sessionToken, message: $message)
   }
 `;

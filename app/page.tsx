@@ -2,6 +2,7 @@
 import { useUserContext } from "@/context/usercontext"
 import { useEffect, useState } from "react"
 import secret from "../frontend.secret.json"
+import Profile from "./profile"
 
 const _ENV = process.env.NODE_ENV as "development" | "production"
 
@@ -48,15 +49,7 @@ export default function Home() {
           </button>
         </a>
       </div>}
-      { user && <div className="container">
-        <button onClick={() => {}}>Logout</button>
-        <div>
-          <div className="content">
-            <img src={user.avatarUrl} alt="Avatar"/>
-            <span>{user.username}</span>
-          </div>
-        </div>
-      </div>}
+      <Profile />
     </main>
   )
 }
