@@ -5,6 +5,8 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
 import path, { join } from 'path';
 
+import secret from '../../backend.secret.json'
+
 interface AppsyncProps {
   name: string
 }
@@ -15,6 +17,9 @@ export class AppsyncStack extends Stack {
 
     const userDynamoName = Fn.importValue(`${props.name}-UserTableName`)
     const userDynamoArn = Fn.importValue(`${props.name}-UserTableArn`)
+
+    const appDynamoName = Fn.importValue(`${props.name}-UserAppsTableName`)
+    const appDynamoArn = Fn.importValue(`${props.name}-UserAppsTableArn`)
 
     const convoDynamoName = Fn.importValue(`${props.name}-ConvoTableName`)
     const convoDynamoArn = Fn.importValue(`${props.name}-ConvoTableArn`)
@@ -67,7 +72,7 @@ export class AppsyncStack extends Stack {
           }),
           new PolicyStatement({
             actions: [ "dynamodb:*" ],
-            resources: [ `${userDynamoArn}*`, `${convoDynamoArn}*` ]
+            resources: [ `${userDynamoArn}*`, `${appDynamoArn}*`, `${convoDynamoArn}*` ]
           }),
           new PolicyStatement({
             actions: [ "lambda:InvokeFunction" ],
@@ -82,26 +87,29 @@ export class AppsyncStack extends Stack {
       bundling: { externalModules: ['aws-sdk'] },
       depsLockFilePath: join(__dirname, '../lambdas', 'package-lock.json'),
       environment: { 
+        DISCORD_TOKEN: secret.discord.token,
+
         USER_TABLE_NAME: userDynamoName,
-        CONVO_TABLE_NAME: convoDynamoName
+        APP_TABLE_NAME: appDynamoName,
+        CONVO_TABLE_NAME: convoDynamoName,
       },
       runtime: Runtime.NODEJS_16_X,
     }
 
     const createConvo = new NodejsFunction(this, `${props.name}-CreateConvo`, {
-      entry: join(__dirname, '../lambdas', 'createConvo.ts'),
+      entry: join(__dirname, '../lambdas', 'appsync', 'createConvo.ts'),
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })
 
     const createUser = new NodejsFunction(this, `${props.name}-CreateUser`, {
-      entry: join(__dirname, '../lambdas', 'createUser.ts'),
+      entry: join(__dirname, '../lambdas', 'appsync', 'createUser.ts'),
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })
 
     const createSession = new NodejsFunction(this, `${props.name}-CreateSession`, {
-      entry: join(__dirname, '../lambdas', 'createSession.ts'),
+      entry: join(__dirname, '../lambdas', 'appsync', 'createSession.ts'),
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })

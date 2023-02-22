@@ -24,14 +24,6 @@ export class DynamoStack extends Stack {
     })
 
     userTable.addGlobalSecondaryIndex({
-      indexName: 'apiKey',
-      partitionKey: {
-        name: 'apiKey',
-        type: AttributeType.STRING
-      }
-    })
-
-    userTable.addGlobalSecondaryIndex({
       indexName: 'githubId',
       partitionKey: {
         name: 'githubId',
@@ -49,6 +41,35 @@ export class DynamoStack extends Stack {
       exportName: `${props.name}-UserTableArn`
     })
 
+    const userAppsTable = new Table(this, `${props.name}-UserAppsTable`, {
+      tableName: `${props.name}-UserAppsTable`,
+      partitionKey: {
+        name: `appId`,
+        type: AttributeType.STRING
+      },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      stream: StreamViewType.NEW_IMAGE,
+      removalPolicy: RPOLICY
+    })
+
+    userAppsTable.addGlobalSecondaryIndex({
+      indexName: 'apiKey',
+      partitionKey: {
+        name: 'apiKey',
+        type: AttributeType.STRING
+      }
+    })
+
+    new CfnOutput(this, `${props.name}-UserAppsTableName`, {
+      value: userAppsTable.tableName,
+      exportName: `${props.name}-UserAppsTableName`
+    })
+
+    new CfnOutput(this, `${props.name}-UserAppsTableArn`, {
+      value: userAppsTable.tableArn,
+      exportName: `${props.name}-UserAppsTableArn`
+    })
+
     const convoTable = new Table(this, `${props.name}-ConvoTable`, {
       tableName: `${props.name}-ConvoTable`,
       partitionKey: {
@@ -58,6 +79,14 @@ export class DynamoStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
       stream: StreamViewType.NEW_IMAGE,
       removalPolicy: RPOLICY
+    })
+
+    convoTable.addGlobalSecondaryIndex({
+      indexName: 'apiKey',
+      partitionKey: {
+        name: 'apiKey',
+        type: AttributeType.STRING
+      }
     })
 
     new CfnOutput(this, `${props.name}-ConvoTableName`, {

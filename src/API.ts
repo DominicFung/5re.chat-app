@@ -5,14 +5,25 @@
 export type _User = {
   __typename: "_User",
   userId: string,
-  apiKey: string,
-  unseal: string,
   githubId: string,
   username: string,
   avatarUrl: string,
-  // Setup
+  apps:  Array<_App | null >,
+};
+
+export type _App = {
+  __typename: "_App",
+  appId: string,
+  appName: string,
+  apiKey: string,
+  unseal: string,
   discordGuildId: string,
   sessionTimeout: number,
+};
+
+export type Message = {
+  __typename: "Message",
+  encrypted: string,
 };
 
 export type Convo = {
@@ -22,10 +33,29 @@ export type Convo = {
   sessionToken: string,
 };
 
-export type Message = {
-  __typename: "Message",
-  encrypted: string,
+export type _Convo = {
+  __typename: "_Convo",
+  appId: string,
+  convoId: string,
+  apiKeyUsed: string,
+  messageToken: string,
+  sessionStartTime: string,
+  discordChannelId: string,
+  messages:  Array<_Message | null >,
 };
+
+export type _Message = {
+  __typename: "_Message",
+  sendDate: string,
+  userType: UserType,
+  message: string,
+};
+
+export enum UserType {
+  OWNER = "OWNER",
+  CUSTOMER = "CUSTOMER",
+}
+
 
 export type CreateUserMutationVariables = {
   masterSecret: string,
@@ -39,41 +69,50 @@ export type CreateUserMutation = {
   createUser:  {
     __typename: "_User",
     userId: string,
-    apiKey: string,
-    unseal: string,
     githubId: string,
     username: string,
     avatarUrl: string,
-    // Setup
-    discordGuildId: string,
-    sessionTimeout: number,
+    apps:  Array< {
+      __typename: "_App",
+      appId: string,
+      appName: string,
+      apiKey: string,
+      unseal: string,
+      discordGuildId: string,
+      sessionTimeout: number,
+    } | null >,
   },
 };
 
 export type UpdateUserDiscordGuildMutationVariables = {
   masterSecret: string,
-  userId: string,
+  appId: string,
   discordGuildId: string,
 };
 
 export type UpdateUserDiscordGuildMutation = {
+  // TODO: add App / remove App
   updateUserDiscordGuild:  {
     __typename: "_User",
     userId: string,
-    apiKey: string,
-    unseal: string,
     githubId: string,
     username: string,
     avatarUrl: string,
-    // Setup
-    discordGuildId: string,
-    sessionTimeout: number,
+    apps:  Array< {
+      __typename: "_App",
+      appId: string,
+      appName: string,
+      apiKey: string,
+      unseal: string,
+      discordGuildId: string,
+      sessionTimeout: number,
+    } | null >,
   },
 };
 
 export type RefreshUserApiKeyMutationVariables = {
   masterSecret: string,
-  userId: string,
+  appId: string,
 };
 
 export type RefreshUserApiKeyMutation = {
@@ -87,7 +126,10 @@ export type AddOwnerMessageMutationVariables = {
 };
 
 export type AddOwnerMessageMutation = {
-  addOwnerMessage: string,
+  addOwnerMessage:  {
+    __typename: "Message",
+    encrypted: string,
+  },
 };
 
 export type CreateSessionMutationVariables = {
@@ -104,13 +146,14 @@ export type CreateSessionMutation = {
   },
 };
 
-export type AddMessageMutationVariables = {
+export type AddCustomerMessageMutationVariables = {
+  appId: string,
   sessionToken: string,
   message: string,
 };
 
-export type AddMessageMutation = {
-  addMessage: string,
+export type AddCustomerMessageMutation = {
+  addCustomerMessage: string,
 };
 
 export type GetUserQueryVariables = {
@@ -123,18 +166,60 @@ export type GetUserQuery = {
   getUser:  {
     __typename: "_User",
     userId: string,
-    apiKey: string,
-    unseal: string,
     githubId: string,
     username: string,
     avatarUrl: string,
-    // Setup
-    discordGuildId: string,
-    sessionTimeout: number,
+    apps:  Array< {
+      __typename: "_App",
+      appId: string,
+      appName: string,
+      apiKey: string,
+      unseal: string,
+      discordGuildId: string,
+      sessionTimeout: number,
+    } | null >,
   },
 };
 
+export type ViewConvoQueryVariables = {
+  masterSecret: string,
+  convoId: string,
+};
+
+export type ViewConvoQuery = {
+  viewConvo:  {
+    __typename: "_Convo",
+    appId: string,
+    convoId: string,
+    apiKeyUsed: string,
+    messageToken: string,
+    sessionStartTime: string,
+    discordChannelId: string,
+    messages:  Array< {
+      __typename: "_Message",
+      sendDate: string,
+      userType: UserType,
+      message: string,
+    } | null >,
+  },
+};
+
+export type ViewMessagesQueryVariables = {
+  masterSecret: string,
+  convoId: string,
+};
+
+export type ViewMessagesQuery = {
+  viewMessages:  Array< {
+    __typename: "_Message",
+    sendDate: string,
+    userType: UserType,
+    message: string,
+  } | null >,
+};
+
 export type GetMessagesQueryVariables = {
+  appId: string,
   sessionToken: string,
 };
 
@@ -145,4 +230,20 @@ export type GetMessagesQuery = {
     __typename: "Message",
     encrypted: string,
   } | null >,
+};
+
+export type OnMessageSubscriptionVariables = {
+  appId: string,
+  sessionToken: string,
+};
+
+export type OnMessageSubscription = {
+  // 5re.chat app
+  // convoCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["createSession"])
+  // messageCount(sessionToken: String!): Message! @aws_subscribe(mutations: ["addOwnerMessage"])
+  // 5re.chat
+  onMessage:  {
+    __typename: "Message",
+    encrypted: string,
+  },
 };

@@ -16,41 +16,49 @@ export const createUser = /* GraphQL */ `
       githubId: $githubId
     ) {
       userId
-      apiKey
-      unseal
       githubId
       username
       avatarUrl
-      discordGuildId
-      sessionTimeout
+      apps {
+        appId
+        appName
+        apiKey
+        unseal
+        discordGuildId
+        sessionTimeout
+      }
     }
   }
 `;
 export const updateUserDiscordGuild = /* GraphQL */ `
   mutation UpdateUserDiscordGuild(
     $masterSecret: String!
-    $userId: ID!
+    $appId: ID!
     $discordGuildId: String!
   ) {
     updateUserDiscordGuild(
       masterSecret: $masterSecret
-      userId: $userId
+      appId: $appId
       discordGuildId: $discordGuildId
     ) {
       userId
-      apiKey
-      unseal
       githubId
       username
       avatarUrl
-      discordGuildId
-      sessionTimeout
+      apps {
+        appId
+        appName
+        apiKey
+        unseal
+        discordGuildId
+        sessionTimeout
+      }
     }
   }
 `;
 export const refreshUserApiKey = /* GraphQL */ `
-  mutation RefreshUserApiKey($masterSecret: String!, $userId: ID!) {
-    refreshUserApiKey(masterSecret: $masterSecret, userId: $userId)
+  mutation RefreshUserApiKey($masterSecret: String!, $appId: ID!) {
+    refreshUserApiKey(masterSecret: $masterSecret, appId: $appId)
   }
 `;
 export const addOwnerMessage = /* GraphQL */ `
@@ -63,7 +71,9 @@ export const addOwnerMessage = /* GraphQL */ `
       masterSecret: $masterSecret
       discordChannelId: $discordChannelId
       message: $message
-    )
+    ) {
+      encrypted
+    }
   }
 `;
 export const createSession = /* GraphQL */ `
@@ -74,8 +84,16 @@ export const createSession = /* GraphQL */ `
     }
   }
 `;
-export const addMessage = /* GraphQL */ `
-  mutation AddMessage($sessionToken: String!, $message: String!) {
-    addMessage(sessionToken: $sessionToken, message: $message)
+export const addCustomerMessage = /* GraphQL */ `
+  mutation AddCustomerMessage(
+    $appId: String!
+    $sessionToken: String!
+    $message: String!
+  ) {
+    addCustomerMessage(
+      appId: $appId
+      sessionToken: $sessionToken
+      message: $message
+    )
   }
 `;

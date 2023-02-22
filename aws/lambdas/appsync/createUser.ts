@@ -1,12 +1,13 @@
 import { AppSyncResolverEvent } from 'aws-lambda'
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
-import { DynamoDBClient, PutItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, PutItemCommand, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { v4 as uuidv4 } from 'uuid'
-import { _User } from '../../src/API'
+import { _User, _App } from '../../../src/API'
 
 const USER_TABLE_NAME = process.env.USER_TABLE_NAME || ''
+const APP_TABLE_NAME = process.env.APP_TABLE_NAME || ''
 
 export const handler = async (event: AppSyncResolverEvent<{
   masterSecret: string, username: string, avatarUrl: string, githubId: string
@@ -42,34 +43,80 @@ export const handler = async (event: AppSyncResolverEvent<{
     })
   )
 
-  if (!res0 || !res0.Count ) { console.error(`dynamo did not return a res0 for githubId`); return }
+  if (!res0) { console.error(`dynamo did not return a res0 for githubId`); return }
   if (res0.Count! > 0 && res0.Items) {
     console.log(" === USER ALREADY EXIST === ")
-
     const user = unmarshall(res0.Items[0]) as _User
+
+    let exString = "set "
+    let exAttribute = {} as {[k:string]: { S: string } }
+
+    console.log("Updating User ... ")
+    for (let o of Object.keys(user)) {
+      if (o === "userId" || o === "apps") continue
+      else if (o === 'githubId' || o === 'username' || o === 'avatarUrl') {
+        exString = `${exString} ${o} = :${o}`
+        exAttribute[`:${o}`] = { S: user[o] }
+      }
+    }
+
+    const res1 = await dynamo.send(
+      new UpdateItemCommand({
+        TableName: USER_TABLE_NAME,
+        Key: { userId: { S: user.userId } },
+        UpdateExpression: exString,
+        ExpressionAttributeValues: exAttribute
+      })
+    )
+    console.log(res1)
+
     return user
-  } else {
-    const userId = uuidv4()
-    const apiKey = uuidv4().replace(/-/g, "")
-    
+  } else {    
     /** 
-     * NOTE! api keys should always start with: "5c_" 
+     * NOTE! api keys should always start with: "5rc_" 
      * But we don't store with that, because dynamo partition will not be effective.
      */
-    const user = { 
-      userId, apiKey, username: b.username, 
-      avatarUrl: b.avatarUrl, githubId: b.githubId, 
-      discordGuildId: "" 
-    } as _User
-    console.log(`new user: ${JSON.stringify(user, null, 2)}`)
+    const app = {
+      appId: uuidv4(),
+      appName: "default",
+      apiKey: uuidv4().replace(/-/g, ""),
+      unseal: uuidv4().replace(/-/g, ""),
+      discordGuildId: "",
+      sessionTimeout: 48
+    } as _App
+
+    const flatUser = {
+      userId: uuidv4(),
+      githubId: b.githubId,
+      username: b.username,
+      avatarUrl: b.avatarUrl,
+      apps: [ app.appId ]
+    }
 
     const res1 = await dynamo.send(
       new PutItemCommand({
         TableName: USER_TABLE_NAME,
-        Item: marshall(user)
+        Item: marshall(flatUser)
       })
     )
     console.log(res1)
+
+    const res2 = await dynamo.send(
+      new PutItemCommand({
+        TableName: APP_TABLE_NAME,
+        Item: marshall(app)
+      })
+    )
+    console.log(res2)
+
+    const user ={
+      ...flatUser,
+      apps:[app]
+    }
+
+    console.log(`new app: ${JSON.stringify(app, null, 2)}`)
+    console.log(`new user: ${JSON.stringify(user, null, 2)}`)
+
     return user
   }
 }

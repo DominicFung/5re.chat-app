@@ -22,12 +22,20 @@ NEWAPPSYNC=$( cat cdk-outputs.json | python3 -c "import sys, json; print(json.lo
 echo $NEWAPPSYNC
 echo
 
+echo "registering new discord (/) commands ..."
+node ./scripts/discord/register.js
+
 if [[ $OLDAPPSYNC = $NEWAPPSYNC ]]; then
   echo "updating codegen ..."
   amplify codegen
 else
-  echo "opps, appsync id changed: $OLDAPPSYNC ==> $NEWAPPSYNC"
-  amplify codegen remove
-
-  echo "run: amplify codegen add --apiId $NEWAPPSYNC"
+  if [ -z "$NEWAPPSYNC" ]; then
+    echo "EXITING. CDK deployment may have failed. No Appsync ID."
+  else
+    echo "opps, appsync id changed: $OLDAPPSYNC ==> $NEWAPPSYNC"
+    amplify codegen remove
+    
+    echo "run: amplify codegen add --apiId $NEWAPPSYNC"
+    amplify codegen add --apiId $NEWAPPSYNC
+  fi 
 fi
