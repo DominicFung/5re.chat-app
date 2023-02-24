@@ -145,19 +145,6 @@
           "name" : "getMessages",
           "description" : "  5re.chat\n  - sessionToken will have sealed the convoId",
           "args" : [ {
-            "name" : "appId",
-            "description" : null,
-            "type" : {
-              "kind" : "NON_NULL",
-              "name" : null,
-              "ofType" : {
-                "kind" : "SCALAR",
-                "name" : "String",
-                "ofType" : null
-              }
-            },
-            "defaultValue" : null
-          }, {
             "name" : "sessionToken",
             "description" : null,
             "type" : {
@@ -317,6 +304,21 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
+          "name" : "userId",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "ID",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
           "name" : "appName",
           "description" : null,
           "args" : [ ],
@@ -391,6 +393,21 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
+        }, {
+          "name" : "active",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "Boolean",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -400,6 +417,15 @@
         "kind" : "SCALAR",
         "name" : "Int",
         "description" : "Built-in Int",
+        "fields" : null,
+        "inputFields" : null,
+        "interfaces" : null,
+        "enumValues" : null,
+        "possibleTypes" : null
+      }, {
+        "kind" : "SCALAR",
+        "name" : "Boolean",
+        "description" : "Built-in Boolean",
         "fields" : null,
         "inputFields" : null,
         "interfaces" : null,
@@ -441,6 +467,21 @@
           "deprecationReason" : null
         }, {
           "name" : "apiKeyUsed",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "discordGuildId",
           "description" : null,
           "args" : [ ],
           "type" : {
@@ -599,7 +640,7 @@
       }, {
         "kind" : "OBJECT",
         "name" : "Message",
-        "description" : "  unseal using apiKey",
+        "description" : "  unseal using messageToken",
         "fields" : [ {
           "name" : "encrypted",
           "description" : null,
@@ -692,8 +733,90 @@
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-          "name" : "updateUserDiscordGuild",
-          "description" : "  TODO: add App / remove App",
+          "name" : "addApp",
+          "description" : null,
+          "args" : [ {
+            "name" : "masterSecret",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "String",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "userId",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "ID",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          } ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "OBJECT",
+              "name" : "_User",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "removeApp",
+          "description" : null,
+          "args" : [ {
+            "name" : "masterSecret",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "String",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "appId",
+            "description" : null,
+            "type" : {
+              "kind" : "NON_NULL",
+              "name" : null,
+              "ofType" : {
+                "kind" : "SCALAR",
+                "name" : "ID",
+                "ofType" : null
+              }
+            },
+            "defaultValue" : null
+          } ],
+          "type" : {
+            "kind" : "NON_NULL",
+            "name" : null,
+            "ofType" : {
+              "kind" : "OBJECT",
+              "name" : "_User",
+              "ofType" : null
+            }
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
+        }, {
+          "name" : "updateApp",
+          "description" : null,
           "args" : [ {
             "name" : "masterSecret",
             "description" : null,
@@ -724,13 +847,36 @@
             "name" : "discordGuildId",
             "description" : null,
             "type" : {
-              "kind" : "NON_NULL",
-              "name" : null,
-              "ofType" : {
-                "kind" : "SCALAR",
-                "name" : "String",
-                "ofType" : null
-              }
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "appName",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "String",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "active",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "Boolean",
+              "ofType" : null
+            },
+            "defaultValue" : null
+          }, {
+            "name" : "sessionTimeout",
+            "description" : null,
+            "type" : {
+              "kind" : "SCALAR",
+              "name" : "Int",
+              "ofType" : null
             },
             "defaultValue" : null
           } ],
@@ -739,14 +885,14 @@
             "name" : null,
             "ofType" : {
               "kind" : "OBJECT",
-              "name" : "_User",
+              "name" : "_App",
               "ofType" : null
             }
           },
           "isDeprecated" : false,
           "deprecationReason" : null
         }, {
-          "name" : "refreshUserApiKey",
+          "name" : "refreshApiKey",
           "description" : null,
           "args" : [ {
             "name" : "masterSecret",
@@ -779,8 +925,8 @@
             "kind" : "NON_NULL",
             "name" : null,
             "ofType" : {
-              "kind" : "SCALAR",
-              "name" : "String",
+              "kind" : "OBJECT",
+              "name" : "_App",
               "ofType" : null
             }
           },
@@ -788,7 +934,7 @@
           "deprecationReason" : null
         }, {
           "name" : "addOwnerMessage",
-          "description" : null,
+          "description" : "  TODO:",
           "args" : [ {
             "name" : "masterSecret",
             "description" : null,
@@ -872,19 +1018,6 @@
           "name" : "addCustomerMessage",
           "description" : null,
           "args" : [ {
-            "name" : "appId",
-            "description" : null,
-            "type" : {
-              "kind" : "NON_NULL",
-              "name" : null,
-              "ofType" : {
-                "kind" : "SCALAR",
-                "name" : "String",
-                "ofType" : null
-              }
-            },
-            "defaultValue" : null
-          }, {
             "name" : "sessionToken",
             "description" : null,
             "type" : {
@@ -948,7 +1081,7 @@
           "deprecationReason" : null
         }, {
           "name" : "sessionToken",
-          "description" : "  use to decrypt messages for this session.",
+          "description" : "  use to encrypt / decrypt messages.",
           "args" : [ ],
           "type" : {
             "kind" : "NON_NULL",
@@ -974,19 +1107,6 @@
           "name" : "onMessage",
           "description" : "  5re.chat app\n convoCount(sessionToken: String!): Int! @aws_subscribe(mutations: [\"createSession\"])\n messageCount(sessionToken: String!): Message! @aws_subscribe(mutations: [\"addOwnerMessage\"])\n 5re.chat",
           "args" : [ {
-            "name" : "appId",
-            "description" : null,
-            "type" : {
-              "kind" : "NON_NULL",
-              "name" : null,
-              "ofType" : {
-                "kind" : "SCALAR",
-                "name" : "String",
-                "ofType" : null
-              }
-            },
-            "defaultValue" : null
-          }, {
             "name" : "sessionToken",
             "description" : null,
             "type" : {
@@ -1488,15 +1608,6 @@
         "enumValues" : null,
         "possibleTypes" : null
       }, {
-        "kind" : "SCALAR",
-        "name" : "Boolean",
-        "description" : "Built-in Boolean",
-        "fields" : null,
-        "inputFields" : null,
-        "interfaces" : null,
-        "enumValues" : null,
-        "possibleTypes" : null
-      }, {
         "kind" : "OBJECT",
         "name" : "__EnumValue",
         "description" : null,
@@ -1817,23 +1928,6 @@
         "onFragment" : false,
         "onField" : false
       }, {
-        "name" : "deprecated",
-        "description" : null,
-        "locations" : [ "FIELD_DEFINITION", "ENUM_VALUE" ],
-        "args" : [ {
-          "name" : "reason",
-          "description" : null,
-          "type" : {
-            "kind" : "SCALAR",
-            "name" : "String",
-            "ofType" : null
-          },
-          "defaultValue" : "\"No longer supported\""
-        } ],
-        "onOperation" : false,
-        "onFragment" : false,
-        "onField" : false
-      }, {
         "name" : "aws_auth",
         "description" : "Directs the schema to enforce authorization on a field",
         "locations" : [ "FIELD_DEFINITION" ],
@@ -1850,6 +1944,23 @@
             }
           },
           "defaultValue" : null
+        } ],
+        "onOperation" : false,
+        "onFragment" : false,
+        "onField" : false
+      }, {
+        "name" : "deprecated",
+        "description" : null,
+        "locations" : [ "FIELD_DEFINITION", "ENUM_VALUE" ],
+        "args" : [ {
+          "name" : "reason",
+          "description" : null,
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "String",
+            "ofType" : null
+          },
+          "defaultValue" : "\"No longer supported\""
         } ],
         "onOperation" : false,
         "onFragment" : false,

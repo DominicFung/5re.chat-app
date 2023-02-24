@@ -41,7 +41,7 @@ export class DynamoStack extends Stack {
       exportName: `${props.name}-UserTableArn`
     })
 
-    const userAppsTable = new Table(this, `${props.name}-UserAppsTable`, {
+    const appsTable = new Table(this, `${props.name}-UserAppsTable`, {
       tableName: `${props.name}-UserAppsTable`,
       partitionKey: {
         name: `appId`,
@@ -52,7 +52,7 @@ export class DynamoStack extends Stack {
       removalPolicy: RPOLICY
     })
 
-    userAppsTable.addGlobalSecondaryIndex({
+    appsTable.addGlobalSecondaryIndex({
       indexName: 'apiKey',
       partitionKey: {
         name: 'apiKey',
@@ -61,13 +61,36 @@ export class DynamoStack extends Stack {
     })
 
     new CfnOutput(this, `${props.name}-UserAppsTableName`, {
-      value: userAppsTable.tableName,
+      value: appsTable.tableName,
       exportName: `${props.name}-UserAppsTableName`
     })
 
     new CfnOutput(this, `${props.name}-UserAppsTableArn`, {
-      value: userAppsTable.tableArn,
+      value: appsTable.tableArn,
       exportName: `${props.name}-UserAppsTableArn`
+    })
+
+    const TTL = "ttl"
+    const sessionTable = new Table(this, `${props.name}-SessionTable`, {
+      tableName: `${props.name}-SessionTable`,
+      partitionKey: {
+        name: `sessionToken`,
+        type: AttributeType.STRING
+      },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      stream: StreamViewType.NEW_AND_OLD_IMAGES,
+      removalPolicy: RPOLICY,
+      timeToLiveAttribute: TTL
+    })
+
+    new CfnOutput(this, `${props.name}-SessionTableName`, {
+      value: sessionTable.tableName,
+      exportName: `${props.name}-SessionTableName`
+    })
+
+    new CfnOutput(this, `${props.name}-SessionTableArn`, {
+      value: sessionTable.tableArn,
+      exportName: `${props.name}-SessionTableArn`
     })
 
     const convoTable = new Table(this, `${props.name}-ConvoTable`, {
@@ -79,14 +102,6 @@ export class DynamoStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
       stream: StreamViewType.NEW_IMAGE,
       removalPolicy: RPOLICY
-    })
-
-    convoTable.addGlobalSecondaryIndex({
-      indexName: 'apiKey',
-      partitionKey: {
-        name: 'apiKey',
-        type: AttributeType.STRING
-      }
     })
 
     new CfnOutput(this, `${props.name}-ConvoTableName`, {

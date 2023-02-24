@@ -11,35 +11,35 @@ import {
   Client as Discord, GatewayIntentBits, 
   Guild, TextChannel 
 } from 'discord.js'
+import { _Session } from '../types'
 
-const APP_TABLE_NAME = process.env.APP_TABLE_NAME || ''
+
 const CONVO_TABLE_NAME = process.env.CONVO_TABLE_NAME || ''
+const SESSION_TABLE_NAME = process.env.SESSION_TABLE_NAME || ''
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN || ''
 
 export const handler = async (event: AppSyncResolverEvent<{
-  appId: string, sessionToken: string, message: string
+  sessionToken: string, message: string
 }, null>) => {
   console.log(event)
   const b = event.arguments
   if (!b) { console.error(`event.argument is empty`); return }
-  if (!b.appId) { console.error(`appId is empty`); return }
   if (!b.sessionToken) { console.error(`sessionToken is empty`); return }
 
   const dynamo = new DynamoDBClient({})
   const res0 = await dynamo.send(
     new GetItemCommand({
-      TableName: APP_TABLE_NAME,
-      Key: { appId: { S: b.appId } }
+      TableName: SESSION_TABLE_NAME,
+      Key: { sessionToken: { S: b.sessionToken } }
     })
   )
   console.log(res0)
 
-  if (!res0 || !res0.Item) { console.error("appId doesn't exist"); return }
+  if (!res0 || !res0.Item) { console.error("sessionToken doesn't exist, may have timed out"); return }
 
-  const app = unmarshall(res0.Item!) as _App
-  const convo = await Iron.unseal(b.sessionToken, app.unseal, Iron.defaults) as _Convo
-
+  const session = unmarshall(res0.Item!) as _Session
+  const convo = await Iron.unseal(b.sessionToken, session.unseal, Iron.defaults) as _Convo
 
   console.log(" === DISCORD TIME === ")
   console.log(DISCORD_TOKEN)
@@ -62,11 +62,11 @@ export const handler = async (event: AppSyncResolverEvent<{
   })
 
   console.log(`Discord Ready? ${discord.isReady()}`)
-  let discordChannelId = (convo as any).discordChannelId
+  let discordChannelId = convo.discordChannelId
   if (discordChannelId) {
     console.log(`No ChannelId found in _Convo ... creating`)
 
-    const guild = discord.guilds.cache.get(app.discordGuildId) as Guild
+    const guild = discord.guilds.cache.get(convo.discordGuildId) as Guild
 
     /**
      * RANDOMLY GENERATED NAME?

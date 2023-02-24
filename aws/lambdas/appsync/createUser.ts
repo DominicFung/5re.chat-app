@@ -1,10 +1,11 @@
 import { AppSyncResolverEvent } from 'aws-lambda'
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
-import { DynamoDBClient, PutItemCommand, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { v4 as uuidv4 } from 'uuid'
 import { _User, _App } from '../../../src/API'
+import { _FlatUser } from '../types'
 
 const USER_TABLE_NAME = process.env.USER_TABLE_NAME || ''
 const APP_TABLE_NAME = process.env.APP_TABLE_NAME || ''
@@ -27,9 +28,9 @@ export const handler = async (event: AppSyncResolverEvent<{
   if (b.masterSecret !== secret.secret) { 
     console.error(`the following secret was supplied: ${b.masterSecret}`); return }
   
-  if (!b.avatarUrl) { console.error(`event.arguments is empty`); return }
-  if (!b.username) { console.error(`event.username is empty`); return }
-  if (!b.githubId) { console.error(`event.githubId is empty`); return }
+  if (!b.avatarUrl) { console.error(`b.avatarUrl is empty`); return }
+  if (!b.username) { console.error(`b.username is empty`); return }
+  if (!b.githubId) { console.error(`b.githubId is empty`); return }
 
   const dynamo = new DynamoDBClient({})
 
@@ -46,38 +47,61 @@ export const handler = async (event: AppSyncResolverEvent<{
   if (!res0) { console.error(`dynamo did not return a res0 for githubId`); return }
   if (res0.Count! > 0 && res0.Items) {
     console.log(" === USER ALREADY EXIST === ")
-    const user = unmarshall(res0.Items[0]) as _User
+    const flatuser = unmarshall(res0.Items[0]) as _FlatUser
 
-    let exString = "set "
+    let exString = ""
     let exAttribute = {} as {[k:string]: { S: string } }
 
     console.log("Updating User ... ")
-    for (let o of Object.keys(user)) {
+    for (const o of Object.keys(flatuser)) {
       if (o === "userId" || o === "apps") continue
       else if (o === 'githubId' || o === 'username' || o === 'avatarUrl') {
-        exString = `${exString} ${o} = :${o}`
-        exAttribute[`:${o}`] = { S: user[o] }
+        if (exString === "") exString = `set ${o} = :${o}`
+        else exString = `${exString}, ${o} = :${o}`
+        exAttribute[`:${o}`] = { S: flatuser[o] }
       }
     }
+
+    console.log(exString)
+    console.log(JSON.stringify(exAttribute))
 
     const res1 = await dynamo.send(
       new UpdateItemCommand({
         TableName: USER_TABLE_NAME,
-        Key: { userId: { S: user.userId } },
+        Key: { userId: { S: flatuser.userId } },
         UpdateExpression: exString,
         ExpressionAttributeValues: exAttribute
       })
     )
     console.log(res1)
+    console.log(flatuser)
 
+    /** Hytrade user */
+    const user = { ...flatuser, apps: [] as _App[] }
+    for (const appId of flatuser.apps) {
+      console.log(`looking for appId: ${appId}`)
+      const res2 = await dynamo.send(
+        new GetItemCommand({
+          TableName: APP_TABLE_NAME,
+          Key: { appId: { S: appId } }
+        })
+      )
+
+      console.log(res2)
+      if (res2.Item) user.apps.push(unmarshall(res2.Item!) as _App)
+    }
+
+    console.log(JSON.stringify(user))
     return user
   } else {    
     /** 
      * NOTE! api keys should always start with: "5rc_" 
      * But we don't store with that, because dynamo partition will not be effective.
      */
+    const userId = uuidv4()
     const app = {
       appId: uuidv4(),
+      userId: userId,
       appName: "default",
       apiKey: uuidv4().replace(/-/g, ""),
       unseal: uuidv4().replace(/-/g, ""),
@@ -86,12 +110,12 @@ export const handler = async (event: AppSyncResolverEvent<{
     } as _App
 
     const flatUser = {
-      userId: uuidv4(),
+      userId: userId,
       githubId: b.githubId,
       username: b.username,
       avatarUrl: b.avatarUrl,
       apps: [ app.appId ]
-    }
+    } as _FlatUser
 
     const res1 = await dynamo.send(
       new PutItemCommand({

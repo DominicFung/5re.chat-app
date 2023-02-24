@@ -11,11 +11,13 @@ export const getUser = /* GraphQL */ `
       avatarUrl
       apps {
         appId
+        userId
         appName
         apiKey
         unseal
         discordGuildId
         sessionTimeout
+        active
       }
     }
   }
@@ -26,6 +28,7 @@ export const viewConvo = /* GraphQL */ `
       appId
       convoId
       apiKeyUsed
+      discordGuildId
       messageToken
       sessionStartTime
       discordChannelId
@@ -47,8 +50,8 @@ export const viewMessages = /* GraphQL */ `
   }
 `;
 export const getMessages = /* GraphQL */ `
-  query GetMessages($appId: String!, $sessionToken: String!) {
-    getMessages(appId: $appId, sessionToken: $sessionToken) {
+  query GetMessages($sessionToken: String!) {
+    getMessages(sessionToken: $sessionToken) {
       encrypted
     }
   }

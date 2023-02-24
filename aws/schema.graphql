@@ -12,20 +12,23 @@ type Query {
 
   # 5re.chat
   #  - sessionToken will have sealed the convoId
-  getMessages(appId: String!, sessionToken: String!): [Message]!
+  getMessages(sessionToken: String!): [Message]!
 }
 
 type Mutation {
   # 5re.chat app
   createUser(masterSecret: String!, username: String!, avatarUrl: String!, githubId: String!): _User! @aws_iam
-  # TODO: add App / remove App
-  updateUserDiscordGuild(masterSecret: String!, appId: ID!, discordGuildId: String!): _User!
-  refreshUserApiKey(masterSecret: String!, appId: ID!): String!
+  addApp(masterSecret: String!, userId: ID!): _User! @aws_iam
+  removeApp(masterSecret: String!, appId: ID!): _User! @aws_iam
+  updateApp(masterSecret: String!, appId: ID!, discordGuildId: String, appName: String, active: Boolean, sessionTimeout: Int): _App! @aws_iam
+  refreshApiKey(masterSecret: String!, appId: ID!): _App! @aws_iam
+  
+  # TODO:
   addOwnerMessage(masterSecret: String!, discordChannelId: String!, message: String!): Message!
 
   # 5re.chat
   createSession(apiKey: String!): Convo!
-  addCustomerMessage(appId: String!, sessionToken: String!, message: String!): String!
+  addCustomerMessage(sessionToken: String!, message: String!): String!
 }
 
 type Subscription {
@@ -34,7 +37,7 @@ type Subscription {
   # messageCount(sessionToken: String!): Message! @aws_subscribe(mutations: ["addOwnerMessage"])
 
   # 5re.chat
-  onMessage(appId: String!, sessionToken: String!): Message! @aws_subscribe(mutations: ["addOwnerMessage"])
+  onMessage(sessionToken: String!): Message! @aws_subscribe(mutations: ["addOwnerMessage"])
 }
 
 enum UserType {
@@ -54,6 +57,7 @@ type _User @aws_iam {
 
 type _App @aws_iam {
   appId: ID!
+  userId: ID!
   appName: String!
 
   apiKey: String!
@@ -61,17 +65,21 @@ type _App @aws_iam {
 
   discordGuildId: String!
   sessionTimeout: Int!
+  active: Boolean!
 }
 
 type Convo {
-  messageToken: String! # use to decrypt messages for this session.
-  sessionToken: String!
+  messageToken: String!   # use to encrypt / decrypt messages.
+  sessionToken: String!   # info about the convo. stored in Session as sessionId 
 }
 
 type _Convo @aws_iam {
   appId: ID!
   convoId: ID!
+
   apiKeyUsed: String!
+  discordGuildId: String!
+  
   messageToken: String!
   sessionStartTime: String!
 
@@ -79,7 +87,7 @@ type _Convo @aws_iam {
   messages: [_Message]!
 }
 
-# unseal using apiKey
+# unseal using messageToken
 type Message {
   encrypted: String!
 }

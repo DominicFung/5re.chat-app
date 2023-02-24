@@ -21,6 +21,9 @@ export class AppsyncStack extends Stack {
     const appDynamoName = Fn.importValue(`${props.name}-UserAppsTableName`)
     const appDynamoArn = Fn.importValue(`${props.name}-UserAppsTableArn`)
 
+    const sessionDynamoName = Fn.importValue(`${props.name}-SessionTableName`)
+    const sessionDynamoArn = Fn.importValue(`${props.name}-SessionTableArn`)
+
     const convoDynamoName = Fn.importValue(`${props.name}-ConvoTableName`)
     const convoDynamoArn = Fn.importValue(`${props.name}-ConvoTableArn`)
 
@@ -49,7 +52,7 @@ export class AppsyncStack extends Stack {
       exportName: `${props.name}-AppsyncArn`
     })
 
-    const excRole = new Role(this, `${props.name}-SocialMediaLambdaRole`, {
+    const excRole = new Role(this, `${props.name}-AppsyncLambdaRole`, {
       assumedBy: new ServicePrincipal('lambda.amazonaws.com')
     })
 
@@ -72,7 +75,7 @@ export class AppsyncStack extends Stack {
           }),
           new PolicyStatement({
             actions: [ "dynamodb:*" ],
-            resources: [ `${userDynamoArn}*`, `${appDynamoArn}*`, `${convoDynamoArn}*` ]
+            resources: [ `${userDynamoArn}*`, `${appDynamoArn}*`, `${convoDynamoArn}*`, `${sessionDynamoArn}*` ]
           }),
           new PolicyStatement({
             actions: [ "lambda:InvokeFunction" ],
@@ -92,47 +95,73 @@ export class AppsyncStack extends Stack {
         USER_TABLE_NAME: userDynamoName,
         APP_TABLE_NAME: appDynamoName,
         CONVO_TABLE_NAME: convoDynamoName,
+        SESSION_TABLE_NAME: sessionDynamoName
       },
       runtime: Runtime.NODEJS_16_X,
     }
-
-    const createConvo = new NodejsFunction(this, `${props.name}-CreateConvo`, {
-      entry: join(__dirname, '../lambdas', 'appsync', 'createConvo.ts'),
-      timeout: Duration.minutes(5),
-      ...nodeJsFunctionProps
-    })
 
     const createUser = new NodejsFunction(this, `${props.name}-CreateUser`, {
       entry: join(__dirname, '../lambdas', 'appsync', 'createUser.ts'),
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })
-
     const createSession = new NodejsFunction(this, `${props.name}-CreateSession`, {
       entry: join(__dirname, '../lambdas', 'appsync', 'createSession.ts'),
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })
-
+    const addApp = new NodejsFunction(this, `${props.name}-AddApp`, {
+      entry: join(__dirname, '../lambdas', 'appsync', 'addApp.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
+    const removeApp = new NodejsFunction(this, `${props.name}-RemoveApp`, {
+      entry: join(__dirname, '../lambdas', 'appsync', 'removeApp.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
+    const refreshApiKey = new NodejsFunction(this, `${props.name}-RefreshApiKey`, {
+      entry: join(__dirname, '../lambdas', 'appsync', 'refreshApiKey.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
+    const addCustomerMessage = new NodejsFunction(this, `${props.name}-AddCustomerMessage`, {
+      entry: join(__dirname, '../lambdas', 'appsync', 'addCustomerMessage.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
 
     // issue with "-" in addLambdaDataSource, do not add
-    const createConvoDS =  api.addLambdaDataSource(`${props.name}CreateConvoDS`, createConvo)
     const createUserDS = api.addLambdaDataSource(`${props.name}CreateUserDS`, createUser)
     const createSessionDS = api.addLambdaDataSource(`${props.name}CreateSessionDS`, createSession)
-
-    createConvoDS.createResolver(`${props.name}-CreateConvoResolver`, {
-      typeName: "Mutation",
-      fieldName: "createConvo"
-    })
+    const addAppDS = api.addLambdaDataSource(`${props.name}AddAppDS`, addApp)
+    const removeAppDS = api.addLambdaDataSource(`${props.name}RemoveAppDS`, removeApp)
+    const refreshApiKeyDS = api.addLambdaDataSource(`${props.name}RefreshApiKeyDS`, refreshApiKey)
+    const addCustomerMessageDS =  api.addLambdaDataSource(`${props.name}AddCustomerMsgDS`, addCustomerMessage)
 
     createUserDS.createResolver(`${props.name}-CreateUserResolver`, {
       typeName: "Mutation",
       fieldName: "createUser"
     })
-
     createSessionDS.createResolver(`${props.name}-CreateSessionResolver`, {
       typeName: "Mutation",
       fieldName: 'createSession'
+    })
+    addAppDS.createResolver(`${props.name}-CreateSessionResolver`, {
+      typeName: "Mutation",
+      fieldName: 'addApp'
+    })
+    removeAppDS.createResolver(`${props.name}-CreateSessionResolver`, {
+      typeName: "Mutation",
+      fieldName: 'removeApp'
+    })
+    refreshApiKeyDS.createResolver(`${props.name}-CreateSessionResolver`, {
+      typeName: "Mutation",
+      fieldName: 'refreshApiKey'
+    })
+    addCustomerMessageDS.createResolver(`${props.name}-AddCustomerMsgResolver`, {
+      typeName: "Mutation",
+      fieldName: "addCustomerMessage"
     })
   }
 }
