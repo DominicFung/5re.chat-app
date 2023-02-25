@@ -106,8 +106,11 @@ export const handler = async (event: AppSyncResolverEvent<{
       apiKey: uuidv4().replace(/-/g, ""),
       unseal: uuidv4().replace(/-/g, ""),
       discordGuildId: "",
-      sessionTimeout: 48
+      sessionTimeout: 48,
+      active: false
     } as _App
+
+    console.log(app)
 
     const flatUser = {
       userId: userId,
@@ -133,10 +136,10 @@ export const handler = async (event: AppSyncResolverEvent<{
     )
     console.log(res2)
 
-    const user ={
+    const user = {
       ...flatUser,
       apps:[app]
-    }
+    } as _User
 
     console.log(`new app: ${JSON.stringify(app, null, 2)}`)
     console.log(`new user: ${JSON.stringify(user, null, 2)}`)

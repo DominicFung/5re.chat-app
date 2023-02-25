@@ -33,8 +33,8 @@ export const createUser = /* GraphQL */ `
   }
 `;
 export const addApp = /* GraphQL */ `
-  mutation AddApp($masterSecret: String!, $userId: ID!) {
-    addApp(masterSecret: $masterSecret, userId: $userId) {
+  mutation AddApp($masterSecret: String!, $userId: ID!, $appName: String) {
+    addApp(masterSecret: $masterSecret, userId: $userId, appName: $appName) {
       userId
       githubId
       username

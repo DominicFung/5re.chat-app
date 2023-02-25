@@ -12,16 +12,10 @@ import backendSecret from '@/backend.secret.json'
 import { _User } from '@/src/API'
 import awsConfig from '@/src/aws-exports'
 
-const _ENV = process.env.NODE_ENV as 'development' | 'production'
+import Iron from '@hapi/iron'
+import { GithubUser, _UserCookie } from '@/types'
 
-interface GithubUser {
-  avatar_url: string,
-  name: string,
-  html_url: string,
-  public_repos: string,
-  followers: string
-  following: string
-}
+const _ENV = process.env.NODE_ENV as 'development' | 'production'
 
 const authorize: NextApiHandler<_User> = async (req, res) => {
   const b = JSON.parse(req.body)
@@ -60,8 +54,8 @@ const authorize: NextApiHandler<_User> = async (req, res) => {
   console.log(github)
   if (!github) { throw new createHttpError.NotFound("Github user not found.") }
   console.log(`User from Github ${JSON.stringify(github, null, 2)}`)
-  
-  
+
+  if (!github.html_url || !github.name) { throw new createHttpError.NotFound("Github user not found.") }
   Amplify.configure(awsConfig)
 
   // Create User
@@ -72,9 +66,10 @@ const authorize: NextApiHandler<_User> = async (req, res) => {
     githubId: github.html_url.split("https://github.com/")[1]
   })) as GraphQLResult<{ createUser: _User}>
 
-  const user = d.data!.createUser
+  const user = { ...d.data!.createUser, cookie: "" } as _UserCookie
   console.log(user)
-  if (!user) { throw new createHttpError.NotFound("User not found.") }
+  if (!d.data!.createUser) { throw new createHttpError.InternalServerError("d.data!.createUser not found.") }
+  user.cookie = await Iron.seal(d.data!.createUser, backendSecret.seal, Iron.defaults)
 
   res.json(user)
 }

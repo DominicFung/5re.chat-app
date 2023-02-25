@@ -48,14 +48,14 @@ export const handler = async (event: AppSyncResolverEvent<{
   }
 
   o = "active"
-  if (b.discordGuildId) {
+  if (b.active) {
     if (exString === "") exString = `set ${o} = :${o}`
     else exString = `${exString}, ${o} = :${o}`
     exAttribute[`:${o}`] = { BOOL: b[o as "active"]! }
   }
 
   o = "sessionTimeout"
-  if (b.discordGuildId) {
+  if (b.sessionTimeout) {
     if (exString === "") exString = `set ${o} = :${o}`
     else exString = `${exString}, ${o} = :${o}`
     exAttribute[`:${o}`] = { N: b[o as "sessionTimeout"]!.toString() }
@@ -63,6 +63,8 @@ export const handler = async (event: AppSyncResolverEvent<{
 
   console.log(exString)
   console.log(JSON.stringify(exAttribute))
+
+  if (exString === "") { console.error("nothing requested for update"); return }
 
   const res1 = await dynamo.send(
     new UpdateItemCommand({

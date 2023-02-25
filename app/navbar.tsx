@@ -10,7 +10,8 @@ import Image from 'next/image'
 
 const navigation = [
   { name: '5re Chat', href: '#', current: true },
-  { name: 'Pricing', href: '#', current: false },
+  { name: 'Guides', href: '/guides', current: false },
+  { name: 'Help Wanted!', href: '#', current: false },
 ]
 
 function classNames(...classes: any[]) {

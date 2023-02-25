@@ -92,6 +92,7 @@ export type CreateUserMutation = {
 export type AddAppMutationVariables = {
   masterSecret: string,
   userId: string,
+  appName?: string | null,
 };
 
 export type AddAppMutation = {

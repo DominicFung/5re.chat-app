@@ -18,7 +18,7 @@ type Query {
 type Mutation {
   # 5re.chat app
   createUser(masterSecret: String!, username: String!, avatarUrl: String!, githubId: String!): _User! @aws_iam
-  addApp(masterSecret: String!, userId: ID!): _User! @aws_iam
+  addApp(masterSecret: String!, userId: ID!, appName: String): _User! @aws_iam
   removeApp(masterSecret: String!, appId: ID!): _User! @aws_iam
   updateApp(masterSecret: String!, appId: ID!, discordGuildId: String, appName: String, active: Boolean, sessionTimeout: Int): _App! @aws_iam
   refreshApiKey(masterSecret: String!, appId: ID!): _App! @aws_iam

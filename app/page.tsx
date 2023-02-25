@@ -8,33 +8,11 @@ const _ENV = process.env.NODE_ENV as "development" | "production"
 
 // http://localhost:3000/?code=f238ef421c89fd0342fc
 export default function Home() {
-  const { user, setUser } = useUserContext()
+  const { user } = useUserContext()
   const [ loading, setLoading ] = useState(false)
 
-  const processLogin = async (url: string ) => {
-    const newUrl = url.split("?code=")
-    setLoading(true)
-
-    const requestData = { code: newUrl[1] }
-    console.log(JSON.stringify(requestData))
-
-    const data = await (await fetch(`/api/user/github/login`, {
-      method: "POST",
-      body: JSON.stringify(requestData)
-    })).json()
-
-    setUser(data)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    const url = window.location.href;
-    const hasCode = url.includes("?code=")
-    if (hasCode) { processLogin(url) }
-  }, [])
-
   return (
-    <main className="m-5">
+    <main className="dark:bg-gray-900 9-5">
       {!user && <div>
         <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${"http://localhost:3000"}`}>
           <button 

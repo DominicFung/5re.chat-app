@@ -120,6 +120,11 @@ export class AppsyncStack extends Stack {
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })
+    const updateApp = new NodejsFunction(this, `${props.name}-UpdateApp`, {
+      entry: join(__dirname, '../lambdas', 'appsync', 'updateApp.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
     const refreshApiKey = new NodejsFunction(this, `${props.name}-RefreshApiKey`, {
       entry: join(__dirname, '../lambdas', 'appsync', 'refreshApiKey.ts'),
       timeout: Duration.minutes(5),
@@ -136,6 +141,7 @@ export class AppsyncStack extends Stack {
     const createSessionDS = api.addLambdaDataSource(`${props.name}CreateSessionDS`, createSession)
     const addAppDS = api.addLambdaDataSource(`${props.name}AddAppDS`, addApp)
     const removeAppDS = api.addLambdaDataSource(`${props.name}RemoveAppDS`, removeApp)
+    const updateAppDS = api.addLambdaDataSource(`${props.name}UpdateAppDS`, updateApp)
     const refreshApiKeyDS = api.addLambdaDataSource(`${props.name}RefreshApiKeyDS`, refreshApiKey)
     const addCustomerMessageDS =  api.addLambdaDataSource(`${props.name}AddCustomerMsgDS`, addCustomerMessage)
 
@@ -147,15 +153,19 @@ export class AppsyncStack extends Stack {
       typeName: "Mutation",
       fieldName: 'createSession'
     })
-    addAppDS.createResolver(`${props.name}-CreateSessionResolver`, {
+    addAppDS.createResolver(`${props.name}-AddAppResolver`, {
       typeName: "Mutation",
       fieldName: 'addApp'
     })
-    removeAppDS.createResolver(`${props.name}-CreateSessionResolver`, {
+    removeAppDS.createResolver(`${props.name}-RemoveAppResolver`, {
       typeName: "Mutation",
       fieldName: 'removeApp'
     })
-    refreshApiKeyDS.createResolver(`${props.name}-CreateSessionResolver`, {
+    updateAppDS.createResolver(`${props.name}-UpdateAppResolver`, {
+      typeName: "Mutation",
+      fieldName: 'updateApp'
+    })
+    refreshApiKeyDS.createResolver(`${props.name}-RefreshApiKeyResolver`, {
       typeName: "Mutation",
       fieldName: 'refreshApiKey'
     })

@@ -11,16 +11,15 @@ export class IamStack extends Stack {
 
     const user = new User(this, `${props.name}-User`)
 
-    const userTableArn = Fn.importValue(`${props.name}-UserTableArn`)
+    const userDynamoArn = Fn.importValue(`${props.name}-UserTableArn`)
+    const appDynamoArn = Fn.importValue(`${props.name}-UserAppsTableArn`)
     const appsyncArn = Fn.importValue(`${props.name}-AppsyncArn`)
 
     user.attachInlinePolicy(new Policy(this, `${props.name}-InlinePolicy`, {
       statements: [
         new PolicyStatement({
-          resources: [
-            userTableArn, `${userTableArn}*`,
-          ],
-          actions: ['dynamodb:*']
+          actions: [ "dynamodb:*" ],
+          resources: [ `${userDynamoArn}*`, `${appDynamoArn}*`]
         }),
         new PolicyStatement({
           resources: [ `${appsyncArn}/*` ],
