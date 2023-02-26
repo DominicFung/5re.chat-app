@@ -6,10 +6,20 @@ import Profile from "./profile"
 
 const _ENV = process.env.NODE_ENV as "development" | "production"
 
-// http://localhost:3000/?code=f238ef421c89fd0342fc
 export default function Home() {
   const { user } = useUserContext()
   const [ loading, setLoading ] = useState(false)
+
+  /**
+   * https://discord.com/api/oauth2/authorize?client_id=1077027716156641290&permissions=2147486736&scope=bot%20applications.commands
+   * - bot + applications.commands
+   * 
+   * - Manage Channels
+   * - Read Messages / View Channels
+   * - Send Messages
+   * - Use Slash Commands
+   */
+  
 
   return (
     <main className="dark:bg-gray-900 9-5">

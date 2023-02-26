@@ -1,4 +1,3 @@
-
 import { _User } from '../../src/API'
 
 export interface _FlatUser extends _User {

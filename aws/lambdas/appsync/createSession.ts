@@ -76,7 +76,7 @@ export const handler = async (event: AppSyncResolverEvent<{apiKey: string}, null
   today.setHours(today.getHours() + app.sessionTimeout)
   const session = {
     sessionToken: sessionToken,
-    unseal: app.unseal,
+    unseal: app.unseal, // .replace(/^Fe26.2\*\*/g, "")
     ttl: today.getTime() / 1000
   } as _Session
 

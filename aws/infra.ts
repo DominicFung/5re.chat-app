@@ -16,6 +16,7 @@ appsyncStack.addDependency(dynamoStack)
 
 const gatewayStack = new ApiGatewayStack(app, `${PROJECT_NAME}-GatewayStack`, { name: PROJECT_NAME })
 gatewayStack.addDependency(dynamoStack)
+gatewayStack.addDependency(appsyncStack)
 
 const iamStack = new IamStack(app, `${PROJECT_NAME}-IamStack`, { name: PROJECT_NAME })
 iamStack.addDependency(dynamoStack)

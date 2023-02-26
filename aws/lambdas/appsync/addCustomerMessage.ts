@@ -1,6 +1,6 @@
 import { AppSyncResolverEvent } from 'aws-lambda'
-import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
-import { unmarshall } from '@aws-sdk/util-dynamodb'
+import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { v4 as uuidv4 } from 'uuid'
 import { _App, _Convo } from '../../../src/API'
@@ -12,6 +12,7 @@ import {
   Guild, TextChannel 
 } from 'discord.js'
 import { _Session } from '../types'
+import { randomName } from '../util'
 
 
 const CONVO_TABLE_NAME = process.env.CONVO_TABLE_NAME || ''
@@ -41,6 +42,10 @@ export const handler = async (event: AppSyncResolverEvent<{
   const session = unmarshall(res0.Item!) as _Session
   const convo = await Iron.unseal(b.sessionToken, session.unseal, Iron.defaults) as _Convo
 
+  /**
+   * TODO: message should be encrypted. Iron.unseal(b.message, convo.messageToken, Iron.defaults)
+   */
+
   console.log(" === DISCORD TIME === ")
   console.log(DISCORD_TOKEN)
 
@@ -61,18 +66,17 @@ export const handler = async (event: AppSyncResolverEvent<{
     })
   })
 
+  let response = "OK"
+
   console.log(`Discord Ready? ${discord.isReady()}`)
   let discordChannelId = convo.discordChannelId
-  if (discordChannelId) {
+  console.log(discordChannelId)
+  if (!discordChannelId || discordChannelId == 'undefined') {
     console.log(`No ChannelId found in _Convo ... creating`)
 
     const guild = discord.guilds.cache.get(convo.discordGuildId) as Guild
-
-    /**
-     * RANDOMLY GENERATED NAME?
-     */
-    const name = `Guest ${uuidv4()}`
-
+    /** RANDOMLY GENERATED NAME */
+    const name = `${randomName()}-${uuidv4().split('-')[1]}`
     const channel = await guild.channels.create({name, type: ChannelType.GuildText })
     console.log(channel)
 
@@ -88,18 +92,37 @@ export const handler = async (event: AppSyncResolverEvent<{
       })
     )
     console.log(res1)
+
+    convo.discordChannelId = discordChannelId
+    response = await Iron.seal(convo, session.unseal, Iron.defaults)
+
+    const nsession = { ...session, sessionToken: response } as _Session
+    const res2 = await dynamo.send(
+      new PutItemCommand({ TableName: SESSION_TABLE_NAME, Item: marshall(nsession) })
+    )
+    console.log(res2)
   }
 
   console.log(" === WRITE TO DISCORD === ")
-
   const channel = discord.channels.cache.get(discordChannelId) as TextChannel
   console.log(channel)
   if (!channel) { console.error(`channelId: ${discordChannelId} could not be found.`) }
 
-  console.log(`channelId: ${channel.id}, type: ${channel.type}`)
-  const r = await channel.send(b.message)
-  console.log(r)
-  console.log(" ==== WRITE COMPLETE ==== ")
+  if (response !== "OK") {
+    const info = `
+|     ---------------------------------
+|       Origin: ${event.request.headers.origin}
+|       Agent:  ${event.request.headers["user-agent"]}
+|       Date:   ${new Date()}
+|     ---------------------------------`
+    const r = await channel.send(info)
+    console.log(r)
+  }
 
-  // write to db?
+  console.log(`channelId: ${channel.id}, type: ${channel.type}`)
+  const r = await channel.send(`Customer said: "${b.message}"`)
+  console.log(r)
+  console.log(" === WRITE COMPLETE === ")
+
+  return response
 }

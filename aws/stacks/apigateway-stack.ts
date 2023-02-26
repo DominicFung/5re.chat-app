@@ -20,6 +20,8 @@ export class ApiGatewayStack extends Stack {
     const convoDynamoName = Fn.importValue(`${props.name}-ConvoTableName`)
     const convoDynamoArn = Fn.importValue(`${props.name}-ConvoTableArn`)
 
+    const appsyncArn = Fn.importValue(`${props.name}-AppsyncArn`)
+
     const api = new RestApi(this, `${props.name}-DiscordAPI`, {
       restApiName: props.name,
       endpointExportName: `${props.name}-DiscordAPIUrl`,
@@ -42,14 +44,8 @@ export class ApiGatewayStack extends Stack {
       new Policy(this, `${props.name}-InlinePolicy`, {
         statements: [
           new PolicyStatement({
-            actions: [
-              "secretsmanager:GetResourcePolicy",
-              "secretsmanager:GetSecretValue",
-              "secretsmanager:DescribeSecret",
-              "secretsmanager:ListSecretVersionIds",
-              "secretsmanager:ListSecrets"
-            ],
-            resources: ["*"]
+            resources: [ `${appsyncArn}/*` ],
+            actions: ["appsync:GraphQL"]
           }),
           new PolicyStatement({
             actions: [ "dynamodb:*" ],
@@ -70,6 +66,7 @@ export class ApiGatewayStack extends Stack {
       environment: { 
         DISCORD_PUBLICKEY: secret.discord.publicKey,
         DISCORD_TOKEN: secret.discord.token,
+        MASTERKEY: secret.secret,
         CONVO_TABLE_NAME: convoDynamoName,
       },
       runtime: Runtime.NODEJS_16_X,
