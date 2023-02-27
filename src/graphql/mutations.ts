@@ -125,13 +125,15 @@ export const addOwnerMessage = /* GraphQL */ `
       discordChannelId: $discordChannelId
       message: $message
     ) {
-      encrypted
+      hash
+      message
     }
   }
 `;
 export const createSession = /* GraphQL */ `
   mutation CreateSession($apiKey: String!) {
     createSession(apiKey: $apiKey) {
+      hash
       messageToken
       sessionToken
     }

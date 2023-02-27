@@ -104,6 +104,14 @@ export class DynamoStack extends Stack {
       removalPolicy: RPOLICY
     })
 
+    convoTable.addGlobalSecondaryIndex({
+      indexName: 'discordChannelId',
+      partitionKey: {
+        name: 'discordChannelId',
+        type: AttributeType.STRING
+      }
+    })
+
     new CfnOutput(this, `${props.name}-ConvoTableName`, {
       value: convoTable.tableName,
       exportName: `${props.name}-ConvoTableName`

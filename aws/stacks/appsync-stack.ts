@@ -91,6 +91,7 @@ export class AppsyncStack extends Stack {
       depsLockFilePath: join(__dirname, '../lambdas', 'package-lock.json'),
       environment: { 
         DISCORD_TOKEN: secret.discord.token,
+        MASTERKEY: secret.secret,
 
         USER_TABLE_NAME: userDynamoName,
         APP_TABLE_NAME: appDynamoName,
@@ -135,6 +136,11 @@ export class AppsyncStack extends Stack {
       timeout: Duration.minutes(5),
       ...nodeJsFunctionProps
     })
+    const addOwnerMessage = new NodejsFunction(this, `${props.name}-AddOwnerMessage`, {
+      entry: join(__dirname, '../lambdas', 'appsync', 'addOwnerMessage.ts'),
+      timeout: Duration.minutes(5),
+      ...nodeJsFunctionProps
+    })
 
     // issue with "-" in addLambdaDataSource, do not add
     const createUserDS = api.addLambdaDataSource(`${props.name}CreateUserDS`, createUser)
@@ -144,6 +150,7 @@ export class AppsyncStack extends Stack {
     const updateAppDS = api.addLambdaDataSource(`${props.name}UpdateAppDS`, updateApp)
     const refreshApiKeyDS = api.addLambdaDataSource(`${props.name}RefreshApiKeyDS`, refreshApiKey)
     const addCustomerMessageDS =  api.addLambdaDataSource(`${props.name}AddCustomerMsgDS`, addCustomerMessage)
+    const addOwnerMessageDS = api.addLambdaDataSource(`${props.name}AddOwnerMsgDS`, addOwnerMessage)
 
     createUserDS.createResolver(`${props.name}-CreateUserResolver`, {
       typeName: "Mutation",
@@ -172,6 +179,10 @@ export class AppsyncStack extends Stack {
     addCustomerMessageDS.createResolver(`${props.name}-AddCustomerMsgResolver`, {
       typeName: "Mutation",
       fieldName: "addCustomerMessage"
+    })
+    addOwnerMessageDS.createResolver(`${props.name}-AddOwnerMsgResolver`, {
+      typeName: "Mutation",
+      fieldName: "addOwnerMessage"
     })
   }
 }

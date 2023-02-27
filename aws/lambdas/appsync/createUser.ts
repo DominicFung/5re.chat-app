@@ -1,11 +1,12 @@
 import { AppSyncResolverEvent } from 'aws-lambda'
-import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
 import { DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { v4 as uuidv4 } from 'uuid'
 import { _User, _App } from '../../../src/API'
 import { _FlatUser } from '../types'
+
+const MASTERKEY = process.env.MASTERKEY || ''
 
 const USER_TABLE_NAME = process.env.USER_TABLE_NAME || ''
 const APP_TABLE_NAME = process.env.APP_TABLE_NAME || ''
@@ -17,15 +18,7 @@ export const handler = async (event: AppSyncResolverEvent<{
   const b = event.arguments
   if (!b) { console.error(`event.arguments is empty`); return }
 
-  const smc = new SecretsManagerClient({})
-  const command = new GetSecretValueCommand({
-    SecretId: "firechat/bsecret"
-  })
-  const rawsecret = (await smc.send(command)).SecretString
-  if (!rawsecret) { console.error(`raw secret is empty.`); return }
-  const secret = JSON.parse(rawsecret) as { secret: string }
-
-  if (b.masterSecret !== secret.secret) { 
+  if (b.masterSecret !== MASTERKEY) { 
     console.error(`the following secret was supplied: ${b.masterSecret}`); return }
   
   if (!b.avatarUrl) { console.error(`b.avatarUrl is empty`); return }

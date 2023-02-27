@@ -7,9 +7,9 @@ import { Convo, _App, _Convo, _User } from '../../../src/API'
 
 import Iron from '@hapi/iron'
 import { _Session } from '../types'
+import md5 from 'md5'
 
 const APP_TABLE_NAME = process.env.APP_TABLE_NAME || ''
-const CONVO_TABLE_NAME = process.env.CONVO_TABLE_NAME || ''
 const SESSION_TABLE_NAME = process.env.SESSION_TABLE_NAME || ''
 
 const KEYSTARTER = "5rc_"
@@ -58,14 +58,6 @@ export const handler = async (event: AppSyncResolverEvent<{apiKey: string}, null
   } as _Convo
   console.log(`new convo: ${JSON.stringify(convo, null, 2)}`)
 
-  const res1 = await dynamo.send(
-    new PutItemCommand({
-      TableName: CONVO_TABLE_NAME,
-      Item: marshall(convo)
-    })
-  )
-  console.log(res1)
-
   /** Encrypt */
   console.log(" === Encrypting Convo === ")
   console.log(` user.unseal ${app.unseal}`)
@@ -88,5 +80,5 @@ export const handler = async (event: AppSyncResolverEvent<{apiKey: string}, null
   )
   console.log(res2)
 
-  return { sessionToken, messageToken } as Convo
+  return { hash: md5(convo.convoId), sessionToken, messageToken } as Convo
 }

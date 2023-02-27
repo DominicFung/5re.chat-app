@@ -1,5 +1,5 @@
 import { AppSyncResolverEvent } from 'aws-lambda'
-import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { v4 as uuidv4 } from 'uuid'
@@ -69,9 +69,8 @@ export const handler = async (event: AppSyncResolverEvent<{
   let response = "OK"
 
   console.log(`Discord Ready? ${discord.isReady()}`)
-  let discordChannelId = convo.discordChannelId
-  console.log(discordChannelId)
-  if (!discordChannelId || discordChannelId == 'undefined') {
+  console.log(convo.discordChannelId)
+  if (!convo.discordChannelId || convo.discordChannelId == 'undefined') {
     console.log(`No ChannelId found in _Convo ... creating`)
 
     const guild = discord.guilds.cache.get(convo.discordGuildId) as Guild
@@ -80,20 +79,27 @@ export const handler = async (event: AppSyncResolverEvent<{
     const channel = await guild.channels.create({name, type: ChannelType.GuildText })
     console.log(channel)
 
-    discordChannelId = channel.id
-    if (!discordChannelId) { console.error('discord channel id is empty'); return }
+    convo.discordChannelId = channel.id
+    if (!convo.discordChannelId) { console.error('discord channel id is empty'); return }
 
     const res1 = await dynamo.send(
-      new UpdateItemCommand({
+      new PutItemCommand({
         TableName: CONVO_TABLE_NAME,
-        Key: { convoId: { S: convo.convoId } },
-        UpdateExpression: "set discordChannelId = :discordChannelId",
-        ExpressionAttributeValues: { ":discordChannelId": { S: discordChannelId } }
+        Item: marshall(convo)
       })
     )
     console.log(res1)
 
-    convo.discordChannelId = discordChannelId
+    // const res1 = await dynamo.send(
+    //   new UpdateItemCommand({
+    //     TableName: CONVO_TABLE_NAME,
+    //     Key: { convoId: { S: convo.convoId } },
+    //     UpdateExpression: "set discordChannelId = :discordChannelId",
+    //     ExpressionAttributeValues: { ":discordChannelId": { S: discordChannelId } }
+    //   })
+    // )
+    // console.log(res1)
+
     response = await Iron.seal(convo, session.unseal, Iron.defaults)
 
     const nsession = { ...session, sessionToken: response } as _Session
@@ -104,9 +110,9 @@ export const handler = async (event: AppSyncResolverEvent<{
   }
 
   console.log(" === WRITE TO DISCORD === ")
-  const channel = discord.channels.cache.get(discordChannelId) as TextChannel
+  const channel = discord.channels.cache.get(convo.discordChannelId) as TextChannel
   console.log(channel)
-  if (!channel) { console.error(`channelId: ${discordChannelId} could not be found.`) }
+  if (!channel) { console.error(`channelId: ${convo.discordChannelId} could not be found.`) }
 
   if (response !== "OK") {
     const info = `

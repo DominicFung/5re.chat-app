@@ -25,11 +25,14 @@ export type _App = {
 
 export type Message = {
   __typename: "Message",
-  encrypted: string,
+  hash: string,
+  message: string,
 };
 
 export type Convo = {
   __typename: "Convo",
+  hash: string,
+  // for subscription purposes - has of the ConvoId.
   messageToken: string,
   // use to encrypt / decrypt messages.
   sessionToken: string,
@@ -191,10 +194,10 @@ export type AddOwnerMessageMutationVariables = {
 };
 
 export type AddOwnerMessageMutation = {
-  // TODO:
   addOwnerMessage:  {
     __typename: "Message",
-    encrypted: string,
+    hash: string,
+    message: string,
   },
 };
 
@@ -206,6 +209,8 @@ export type CreateSessionMutation = {
   // 5re.chat
   createSession:  {
     __typename: "Convo",
+    hash: string,
+    // for subscription purposes - has of the ConvoId.
     messageToken: string,
     // use to encrypt / decrypt messages.
     sessionToken: string,
@@ -295,21 +300,20 @@ export type GetMessagesQuery = {
   // - sessionToken will have sealed the convoId
   getMessages:  Array< {
     __typename: "Message",
-    encrypted: string,
+    hash: string,
+    message: string,
   } | null >,
 };
 
 export type OnMessageSubscriptionVariables = {
-  sessionToken: string,
+  hash: string,
 };
 
 export type OnMessageSubscription = {
-  // 5re.chat app
-  // convoCount(sessionToken: String!): Int! @aws_subscribe(mutations: ["createSession"])
-  // messageCount(sessionToken: String!): Message! @aws_subscribe(mutations: ["addOwnerMessage"])
   // 5re.chat
-  onMessage:  {
+  onMessage?:  {
     __typename: "Message",
-    encrypted: string,
-  },
+    hash: string,
+    message: string,
+  } | null,
 };

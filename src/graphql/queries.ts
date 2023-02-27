@@ -52,7 +52,8 @@ export const viewMessages = /* GraphQL */ `
 export const getMessages = /* GraphQL */ `
   query GetMessages($sessionToken: String!) {
     getMessages(sessionToken: $sessionToken) {
-      encrypted
+      hash
+      message
     }
   }
 `;
