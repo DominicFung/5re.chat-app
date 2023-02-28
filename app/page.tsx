@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <main className="p-5">
       {!user && <div>
-        <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${"http://localhost:3000"}`}>
+        <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${secret.github[_ENV].redirectUri}`}>
           <button 
             className="focus:outline-none text-white bg-purple-300 hover:bg-purple-400 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors border-2 border-purple-600 hover:border-purple-700">
             <span className='flex flex-row'>

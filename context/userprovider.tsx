@@ -41,7 +41,18 @@ const UserContextProvider = ({ children }: IProps) => {
 
   const getUser = async () => {
     const data = await (await fetch(`/api/user`)).json() as _UserCookie | {message: string}
-    if ((data as {message: string}).message) { console.log(data); _setLoading(false); return }
+    if ((data as {message: string}).message) { 
+      console.log("getting login info from Github ..")
+      console.log(data)
+      _setLoading(false); 
+      
+      // const url = window.location.href
+      // const hasCode = url.includes("?code=")
+      // console.log("here")
+      // if (hasCode) { await processGithubLogin(url) }
+      
+      return
+    }
     
     const u = data as _UserCookie
     if (u.userId && u.githubId && u.avatarUrl) {
@@ -54,9 +65,13 @@ const UserContextProvider = ({ children }: IProps) => {
     if (loading && !user) {
       getUser()
     } else if (!loading && !user) {
+      console.log("getting login info from Github ..")
       const url = window.location.href
       const hasCode = url.includes("?code=")
       if (hasCode) { processGithubLogin(url) }
+    } else {
+      console.log(loading)
+      console.log(user)
     }
   }, [loading, user])
   
