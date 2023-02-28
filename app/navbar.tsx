@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useUserContext } from '@/context/usercontext'
@@ -8,19 +8,43 @@ import { useUserContext } from '@/context/usercontext'
 import fireChatIcon from '@/assets/icons8-fire-96.png'
 import Image from 'next/image'
 
-const navigation = [
-  { name: '5re Chat', href: '#', current: true },
-  { name: 'Guides', href: '/guides', current: false },
-  { name: 'Help Wanted!', href: '#', current: false },
-]
+import jscookie from 'js-cookie'
+import { usePathname } from 'next/navigation'
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Navbar() {
+interface Nav { name: string, href: string, current: boolean }
 
-  const { user } = useUserContext()
+export default function Navbar() {
+  const pathname = usePathname()
+  const { user, setUser } = useUserContext()
+  const [navigation, setNavigation ] = useState<Nav[]>([
+    { name: '5re Chat', href: '/', current: false },
+    { name: 'Guides', href: '/docs', current: false },
+    { name: 'Support Me!', href: '/support', current: false },
+  ])
+
+  const logout = () => { jscookie.remove("token"); setUser(null) }
+
+  const manipulateNavigation = (setCurrent: string) => {
+    for (const n in navigation) {
+      if (navigation[n].href.toLowerCase() === setCurrent) { navigation[n].current = true }
+      else { navigation[n].current = false }
+    }
+    console.log(`Here: ${JSON.stringify(navigation)}`)
+    setNavigation([...navigation])
+  }
+
+  useEffect(() => {
+    if (pathname) {
+      console.log(pathname)
+      if (pathname.toLowerCase().startsWith("/docs")) { manipulateNavigation("/docs") }
+      else if (pathname.toLowerCase().startsWith("/support")) { manipulateNavigation("/support") }
+      else if (pathname.toLowerCase().startsWith("/")) { manipulateNavigation("/") }
+    }
+  }, [pathname])
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -123,12 +147,11 @@ export default function Navbar() {
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <span onClick={logout}
                           className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                         >
                           Sign out
-                        </a>
+                        </span>
                       )}
                     </Menu.Item>
                   </Menu.Items>

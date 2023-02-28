@@ -13,10 +13,10 @@ interface IProps {
 }
 
 const UserContextProvider = ({ children }: IProps) => {
-  const [user, _setUser] = useState<_User>()
+  const [user, _setUser] = useState<_User|null>(null)
   const [loading, _setLoading] = useState(true)
 
-  const setUser = (user: _User) => { _setUser(user) }
+  const setUser = (user: _User|null) => { _setUser(user) }
 
   const processGithubLogin = async (url: string ) => {
     const newUrl = url.split("?code=")
