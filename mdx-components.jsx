@@ -5,11 +5,11 @@
 // React component you want, including components from
 // other libraries.
 function H1({ children }) {
-  return <h1 className="text-7xl">{children}</h1>
+  return <h1>{children}</h1>
 }
 
 function H2({ children }) {
-  return <h2 className="text-3xl">{children}</h2>
+  return <h2>{children}</h2>
 }
 
 export function useMDXComponents(components) {

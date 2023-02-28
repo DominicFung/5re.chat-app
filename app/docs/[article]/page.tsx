@@ -12,7 +12,7 @@ import './article.css'
 
 export default async function Topic({ params }: {params: { article: string } }) {
 
-  const docsDir = path.join(process.cwd(), 'docs')
+  const docsDir = path.join(process.cwd(), 'content', 'docs')
   const filenames = (await fs.readdir(docsDir)).filter(f => /\.(mdx|md)$/.test(f))
   const routes = filenames.map(f => f.replace(/\.[^/.]+$/, '') )
 
@@ -25,7 +25,7 @@ export default async function Topic({ params }: {params: { article: string } }) 
   }
   if (!p && !f) return <>{JSON.stringify(filenames)}</>
 
-  const content = (await fs.readFile(path.join(process.cwd(), 'docs', f))).toString()
+  const content = (await fs.readFile(path.join(process.cwd(), 'content', 'docs', f))).toString()
   console.log(content)
   const gm = matter(content)
 
