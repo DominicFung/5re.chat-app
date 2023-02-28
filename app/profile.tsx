@@ -33,8 +33,8 @@ export default function Profile() {
     }
   }, [user])
 
-  return (<div className="w-full p-4 flex justify-center pb-24 dark:bg-gray-900">
-    {user && <div className="container mx-w-2xl">
+  return (<div className="container mx-auto max-w-2xl">
+    {user && <div className="">
       <div className="py-6">
         <h1 className="text-7xl text-gray-700 dark:text-gray-50">Hi {user.username} 👋</h1>
         <p className=""></p>
@@ -43,7 +43,7 @@ export default function Profile() {
       <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-300" />
 
       { user.apps && <div>
-        <div className="flex flex-row max-w-xl">
+        <div className="flex flex-row">
           <h2 className="text-3xl text-gray-600 dark:text-gray-100 p-2 pr-5">App:</h2>
           <div className="w-full">
             <Menu as="div" className="mb-6">
@@ -94,7 +94,7 @@ export default function Profile() {
         </div>
         
         
-        <div className="max-w-xl mb-6">
+        <div className="mb-6">
           <label htmlFor="website-admin" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
             <span className="flex flex-row"> 
             Discord Guild to message you via 
@@ -119,7 +119,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="mb-6 max-w-xl">
+        <div className="mb-6">
           <label htmlFor="search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
           <div className="flex flex-row">
             <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">

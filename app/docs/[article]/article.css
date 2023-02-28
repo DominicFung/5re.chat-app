@@ -1,0 +1,5 @@
+
+
+.article {
+  @apply dark:text-gray-50 text-gray-700
+}

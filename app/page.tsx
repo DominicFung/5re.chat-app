@@ -8,7 +8,6 @@ const _ENV = process.env.NODE_ENV as "development" | "production"
 
 export default function Home() {
   const { user } = useUserContext()
-  const [ loading, setLoading ] = useState(false)
 
   /**
    * https://discord.com/api/oauth2/authorize?client_id=1077027716156641290&permissions=2147486736&scope=bot%20applications.commands
@@ -22,7 +21,7 @@ export default function Home() {
   
 
   return (
-    <main className="dark:bg-gray-900 9-5">
+    <main className="p-5">
       {!user && <div>
         <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${"http://localhost:3000"}`}>
           <button 
