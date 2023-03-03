@@ -23,14 +23,14 @@ const authorize: NextApiHandler<_UserCookie|{message: string}> = async (req, res
   const ouser = await Iron.unseal(token, backendSecret.seal, Iron.defaults) as _User
   if (!ouser.userId || !ouser.githubId || !ouser.avatarUrl ) { throw new createHttpError.BadRequest("Forged Cookie Detected.") }
 
-  /** Update User; change to IAM role after development */
-  const dynamo = new DynamoDBClient(process.env.NODE_ENV === 'development' ? {
+  /** Update User; change to IAM role after development? */
+  const dynamo = new DynamoDBClient({
     credentials: {
       accessKeyId: cdk[`${PROJECT}-IamStack`][`${PROJECT}AccessKeyId`], 
       secretAccessKey: cdk[`${PROJECT}-IamStack`][`${PROJECT}SecretKey`]
     },
     region: 'us-east-1'
-  } : {})
+  })
 
   const res0 = await dynamo.send(
     new GetItemCommand({
