@@ -14,4 +14,7 @@ module.exports = {
   plugins: [
     require('@tailwindcss/typography')
   ],
+  safelist: [
+    "max-w-md", "max-w-lg", "text-left", "flex-1", "flex-row", "flex"
+  ]
 }

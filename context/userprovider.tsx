@@ -12,6 +12,16 @@ interface IProps {
   children: ReactNode;
 }
 
+function parse(queryString: string) {
+  var query = {} as { [a:string]: string }
+  var pairs = queryString.replace(/^\?/, '').split('&')
+  for (var i = 0; i < pairs.length; i++) {
+      var pair = pairs[i].split('=');
+      query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+  }
+  return query
+}
+
 const UserContextProvider = ({ children }: IProps) => {
   const [user, _setUser] = useState<_User|null>(null)
   const [loading, _setLoading] = useState(true)
@@ -19,24 +29,29 @@ const UserContextProvider = ({ children }: IProps) => {
   const setUser = (user: _User|null) => { _setUser(user) }
 
   const processGithubLogin = async (url: string ) => {
-    const newUrl = url.split("?code=")
+    if (url.split("?").length < 2) return 
+    
+    const query = parse(url.split("?")[1])
+    if (!query['code']) return
 
-    const requestData = { code: newUrl[1] }
+    const requestData = { code: query['code'] }
     console.log(JSON.stringify(requestData))
-      const data = await (await fetch(`/api/user/github/login`, {
-        method: "POST",
-        body: JSON.stringify(requestData)
-      })).json() as _UserCookie
-      
-      console.log(data)
-      if ((data as any).error?.message == "Unauthorized" || !data) {
-        console.log("Unauthorized")
-        window.location.assign("/")
-        return
-      }
-  
-      jscookie.set("token", data.cookie)
-      setUser(data)
+    const data = await (await fetch(`/api/user/github/login`, {
+      method: "POST",
+      body: JSON.stringify(requestData)
+    })).json() as _UserCookie
+    
+    console.log(data)
+    if ((data as any).error?.message == "Unauthorized" || !data) {
+      console.log("Unauthorized")
+      window.location.assign("/")
+      return
+    }
+
+    jscookie.set("token", data.cookie)
+    setUser(data)
+    
+    if (query['state'] && query['state'] === 'getting-started') { window.location.assign("/getting-started") }
   }
 
   const getUser = async () => {
@@ -44,13 +59,8 @@ const UserContextProvider = ({ children }: IProps) => {
     if ((data as {message: string}).message) { 
       console.log("getting login info from Github ..")
       console.log(data)
-      _setLoading(false); 
-      
-      // const url = window.location.href
-      // const hasCode = url.includes("?code=")
-      // console.log("here")
-      // if (hasCode) { await processGithubLogin(url) }
-      
+      _setLoading(false)
+
       return
     }
     

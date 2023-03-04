@@ -1,11 +1,10 @@
-
-import secret from "@/frontend.secret.json"
+import secret from "../../../frontend.secret.json"
 const _ENV = process.env.NODE_ENV as "development" | "production"
 
-export default function StarterButtons() {
+export default function GitHub() {
   return (
     <div className="not-prose container">    
-      <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${secret.github[_ENV].redirectUri}`}>
+      <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${secret.github[_ENV].redirectUri}&state=getting-started`}>
         <button 
           className="focus:outline-none dark:text-white dark:bg-purple-700 dark:hover:bg-purple-600 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors border-2 dark:border-purple-800 dark:hover:border-purple-700">
           <span className='flex flex-row'>
@@ -14,15 +13,6 @@ export default function StarterButtons() {
               </path>
             </svg>
             <span className='px-3 pl-4 py-1 dark:text-white text-gray-800'>Login with GitHub</span>
-          </span>
-        </button>
-      </a>
-      <a href="/getting-started" className="ml-2 align-top">
-        <button 
-          className="h-14 focus:outline-none text-white dark:bg-indigo-700 hover:bg-indigo-600 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors border-2 border-indigo-800 hover:border-indigo-700">
-          <span className='flex flex-row'>
-            <span className='px-3 pl-4 py-1 dark:text-white text-gray-800'>Get Started</span>
-            <span className="text-xl">🚀</span>
           </span>
         </button>
       </a>

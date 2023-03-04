@@ -33,14 +33,14 @@ export default function Profile() {
     }
   }, [user])
 
-  return (<div className="container mx-auto max-w-2xl">
-    {user && <div className="">
+  return (<div className="container mx-auto max-w-2xl mb-20">
+    {user && <div className="mb-40">
       <div className="py-6">
-        <h1 className="text-7xl text-gray-700 dark:text-gray-50">Hi {user.username} 👋</h1>
+        <h1 className="text-6xl text-gray-700 dark:text-gray-50">Hi {user.username} 👋</h1>
         <p className=""></p>
       </div>
 
-      <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-300" />
+      <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-300 mb-16" />
 
       { user.apps && <div>
         <div className="flex flex-row">
@@ -136,6 +136,7 @@ export default function Profile() {
         </div>
       </div> }
     
+    <hr className="mt-20 h-px my-8 bg-gray-200 border-0 dark:bg-gray-300" />
     </div>}
   </div>)
 }

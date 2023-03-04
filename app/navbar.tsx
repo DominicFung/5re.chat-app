@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ArrowRightOnRectangleIcon, Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useUserContext } from '@/context/usercontext'
 
 import fireChatIcon from '@/assets/icons8-fire-96.png'
@@ -10,6 +10,9 @@ import Image from 'next/image'
 
 import jscookie from 'js-cookie'
 import { usePathname } from 'next/navigation'
+
+import secret from "@/frontend.secret.json"
+const _ENV = process.env.NODE_ENV as "development" | "production"
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
@@ -22,7 +25,8 @@ export default function Navbar() {
   const { user, setUser } = useUserContext()
   const [navigation, setNavigation ] = useState<Nav[]>([
     { name: '5re Chat', href: '/', current: false },
-    { name: 'Guides', href: '/docs', current: false },
+    { name: 'Getting Started', href: '/getting-started', current: false },
+    { name: 'Docs', href: '/docs', current: false },
     { name: 'Support Me!', href: '/support', current: false },
   ])
 
@@ -41,6 +45,7 @@ export default function Navbar() {
     if (pathname) {
       console.log(pathname)
       if (pathname.toLowerCase().startsWith("/docs")) { manipulateNavigation("/docs") }
+      else if (pathname.toLowerCase().startsWith("/getting-started")) { manipulateNavigation("/getting-started") }
       else if (pathname.toLowerCase().startsWith("/support")) { manipulateNavigation("/support") }
       else if (pathname.toLowerCase().startsWith("/")) { manipulateNavigation("/") }
     }
@@ -94,6 +99,18 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
+            { !user && <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+              <a className='text-gray-400 hover:text-white' href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${secret.github[_ENV].redirectUri}`}>
+                <span className='align-top relative top-1'>Login</span>
+                <button
+                  type="button"
+                  className="rounded-full bg-gray-800 p-1 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                >
+                  <span className="sr-only">View notifications</span>
+                  <ArrowRightOnRectangleIcon className="h-6 w-6" aria-hidden="true" />
+                </button>
+              </a>
+            </div>}
             { user && <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <button
                 type="button"
@@ -128,7 +145,7 @@ export default function Navbar() {
                     <Menu.Item>
                       {({ active }) => (
                         <a
-                          href="#"
+                          href="/#profile"
                           className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                         >
                           Your Profile
