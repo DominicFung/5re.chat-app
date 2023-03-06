@@ -1,19 +1,17 @@
-
-import secret from "@/frontend.secret.json"
-const _ENV = process.env.NODE_ENV as "development" | "production"
-
 export default function StarterButtons() {
   return (
     <div className="not-prose container">    
-      <a href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${secret.github[_ENV].redirectUri}`}>
+      <a href={`https://discord.gg/czzFjcE9kK`}>
         <button 
           className="focus:outline-none dark:text-white dark:bg-purple-700 dark:hover:bg-purple-600 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors border-2 dark:border-purple-800 dark:hover:border-purple-700">
           <span className='flex flex-row'>
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-8 w-8 dark:fill-white fill-slate-900">
-              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z">
-              </path>
-            </svg>
-            <span className='px-3 pl-4 py-1 dark:text-white text-gray-800'>Login with GitHub</span>
+          <svg className="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+            <defs><style>{".cls-1{fill:#fff;}"}</style></defs>
+            <g id="图层_2" data-name="图层 2"><g id="Discord_Logos" data-name="Discord Logos"><g id="Discord_Logo_-_Large_-_White" data-name="Discord Logo - Large - White">
+            <path className="cls-1" 
+              d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></g></g></g>
+          </svg>
+            <span className='px-3 pl-4 py-1 dark:text-white text-gray-800'>Join Our Discord!</span>
           </span>
         </button>
       </a>
