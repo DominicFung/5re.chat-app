@@ -48,7 +48,7 @@ export default function Profile() {
       <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-300 mb-8 md:mb-16" />
 
       { user.apps && <div>
-        <div className="flex flex-row align-middle">
+        <div className="sm:hidden flex flex-row align-middle">
           <h2 className="text-2xl text-gray-600 dark:text-gray-100 p-2 pr-5">Application</h2>
           <div className="flex-1" />
           <button type="submit" onClick={() => { setOpenNewApp(true) }}
