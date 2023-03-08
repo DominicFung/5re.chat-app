@@ -4,14 +4,20 @@ import { useUserContext } from "@/context/usercontext"
 import { _App } from "@/src/API"
 import { Menu, Transition } from "@headlessui/react"
 import { DocumentDuplicateIcon, PlusIcon, LockClosedIcon } from '@heroicons/react/24/outline'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid'
+import { QuestionMarkCircleIcon, TrashIcon } from '@heroicons/react/24/solid'
 import { Fragment, useEffect, useState } from "react"
+
+import AddApp from "./addapp"
+import DeleteApp from "./deleteapp"
 
 export default function Profile() {
   const { user } = useUserContext()
 
   const [appIndex, setAppIndex] = useState(0)
   const [guildId, setGuildId] = useState("")
+
+  const [ openNewApp, setOpenNewApp] = useState(false)
+  const [ openDeleteApp, setOpenDeleteApp ] = useState(false)
 
   const updateGuildId = async () => {
     if (guildId !== "") {
@@ -22,7 +28,6 @@ export default function Profile() {
           discordGuildId: guildId
         })
       })).json() as _App
-
       console.log(data)
     }
   }
@@ -31,7 +36,7 @@ export default function Profile() {
     if (user && user.userId && user.apps[appIndex]) {
       setGuildId(user.apps[appIndex]?.discordGuildId as string)
     }
-  }, [user])
+  }, [user, appIndex])
 
   return (<div className="container mx-auto max-w-2xl mb-20">
     {user && <div className="mb-40">
@@ -40,15 +45,30 @@ export default function Profile() {
         <p className=""></p>
       </div>
 
-      <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-300 mb-16" />
+      <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-300 mb-8 md:mb-16" />
 
       { user.apps && <div>
+        <div className="flex flex-row align-middle">
+          <h2 className="text-2xl text-gray-600 dark:text-gray-100 p-2 pr-5">Application</h2>
+          <div className="flex-1" />
+          <button type="submit" onClick={() => { setOpenNewApp(true) }}
+            className="ali text-white h-10 mx-1 mt-0.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            <PlusIcon className="w-6 h-6" />
+          </button>
+          <button type="submit" onClick={() => { setOpenDeleteApp(true) }}
+            className="text-white h-10 mx-1 mt-0.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            <TrashIcon className="w-6 h-6" />
+          </button>
+        </div>
         <div className="flex flex-row">
-          <h2 className="text-3xl text-gray-600 dark:text-gray-100 p-2 pr-5">App:</h2>
+          <h2 className="hidden sm:inline text-3xl text-gray-600 dark:text-gray-100 p-2 pr-5">App:</h2>
           <div className="w-full">
-            <Menu as="div" className="mb-6">
+            <Menu as="div" className="mb-6" onChange={(e: { currentTarget: any }) => { console.log(e) }}>
               <div className="flex">
-                <Menu.Button id="dropdown-button" data-dropdown-toggle="dropdown" className="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:border-gray-700 dark:text-white rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" type="button">
+                <Menu.Button id="dropdown-button" data-dropdown-toggle="dropdown" type="button"
+                  className="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:border-gray-700 dark:text-white rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
                   {user.apps[appIndex]?.appName}
                   <svg aria-hidden="true" className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path>
@@ -57,8 +77,15 @@ export default function Profile() {
                 <div className="relative w-full">
                   <input type="search" id="search" className="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-r-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                     value={`${user.apps[appIndex]?.appId}`}  placeholder="API Key" required disabled onChange={() => {}}/>
-                  <button type="submit" className="text-white absolute right-2.5 bottom-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                  <button type="submit" onClick={() => { setOpenNewApp(true) }}
+                    className="hidden sm:block text-white absolute right-16 mr-2 bottom-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  >
                     <PlusIcon className="w-6 h-6" />
+                  </button>
+                  <button type="submit" onClick={() => { setOpenDeleteApp(true) }}
+                    className="hidden sm:block text-white absolute right-2.5 bottom-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  >
+                    <TrashIcon className="w-6 h-6" />
                   </button>
                 </div>
               </div>
@@ -73,14 +100,15 @@ export default function Profile() {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="z-20 absolute left-0 top-1 origin-top-right bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-600 focus:outline-none">
+                  <Menu.Items className="z-20 absolute left-0 top-1 origin-top-right bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-600 focus:outline-none">
                     <div className="p-0">
                       { user.apps.map((app, i) => {
                         let roundedness = ""
                         if (i === 0) roundedness = "rounded-t-lg"
                         if (i === user.apps.length-1) roundedness = roundedness + " rounded-b-lg"
                         return <Menu.Item key={i}>
-                          <button className={`w-full block ${roundedness} px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500 dark:text-gray-300 dark:hover:text-white`}>
+                          <button onClick={() => { setAppIndex(i) }}
+                            className={`w-full block ${roundedness} px-6 py-2 ${i===appIndex?"dark:bg-blue-800 bg-blue-200":""} hover:bg-gray-100 dark:hover:bg-gray-500 dark:text-gray-300 dark:hover:text-white`}>
                             { app?.appName }
                           </button>
                         </Menu.Item>
@@ -134,9 +162,22 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        <div className="ml-3 flex justify-between">
+          <div className="flex items-start">
+            <div className="flex items-center h-5">
+                <input id="remember" type="checkbox" value="" disabled className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-600 dark:border-gray-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" required />
+            </div>
+            <label htmlFor="remember" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Active</label>
+          </div>
+        </div>
       </div> }
     
     <hr className="mt-20 h-px my-8 bg-gray-200 border-0 dark:bg-gray-300" />
+    <AddApp open={openNewApp} setOpen={setOpenNewApp} />
+    <DeleteApp app={user?.apps[appIndex]} open={openDeleteApp} setOpen={setOpenDeleteApp} 
+      setDelete={() => { setAppIndex(appIndex-1); setOpenDeleteApp(false) }} 
+    />
     </div>}
   </div>)
 }

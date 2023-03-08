@@ -3,9 +3,7 @@
 import React, { ReactNode, useEffect, useState } from "react"
 import { UserContext } from "./usercontext"
 
-import { _User } from "@/src/API"
 import { _UserCookie } from "@/types"
-
 import jscookie from 'js-cookie'
 
 interface IProps {
@@ -23,10 +21,14 @@ function parse(queryString: string) {
 }
 
 const UserContextProvider = ({ children }: IProps) => {
-  const [user, _setUser] = useState<_User|null>(null)
+  const [user, _setUser] = useState<_UserCookie|null>(null)
   const [loading, _setLoading] = useState(true)
 
-  const setUser = (user: _User|null) => { _setUser(user) }
+  const setUser = (user: _UserCookie|null) => {
+    console.log(`conext provider setUser: ${JSON.stringify(user)}`)
+    if (user) { jscookie.set("token", user.cookie) }
+    _setUser(user)
+  }
 
   const processGithubLogin = async (url: string ) => {
     if (url.split("?").length < 2) return 
@@ -48,7 +50,6 @@ const UserContextProvider = ({ children }: IProps) => {
       return
     }
 
-    jscookie.set("token", data.cookie)
     setUser(data)
     
     if (query['state'] && query['state'] === 'getting-started') { window.location.assign("/getting-started") }
@@ -60,7 +61,6 @@ const UserContextProvider = ({ children }: IProps) => {
       console.log("getting login info from Github ..")
       console.log(data)
       _setLoading(false)
-
       return
     }
     

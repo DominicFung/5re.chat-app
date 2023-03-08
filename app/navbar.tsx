@@ -101,14 +101,6 @@ export default function Navbar() {
             </div>
             { !user && <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <a className='text-gray-400 hover:text-white' href={`https://github.com/login/oauth/authorize?scope=user&client_id=${secret.github[_ENV].clientId}&redirect_uri=${secret.github[_ENV].redirectUri}`}>
-                {/* <span className='align-top relative top-1'>Login</span>
-                <button
-                  type="button"
-                  className="rounded-full bg-gray-800 p-1 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                >
-                  <span className="sr-only">View notifications</span>
-                  <ArrowRightOnRectangleIcon className="h-6 w-6" aria-hidden="true" />
-                </button> */}
                 <button 
                   className="focus:outline-none dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-3 py-2 transition-colors border-2 dark:border-gray-800 dark:hover:border-gray-700">
                   <span className='flex flex-row'>

@@ -1,9 +1,9 @@
 import { createContext, useContext } from "react"
-import { _User } from "@/src/API"
+import { _UserCookie } from "@/types"
 
 interface IUserContext {
-  user: _User | null
-  setUser: (user: _User|null) => void
+  user: _UserCookie | null
+  setUser: (user: _UserCookie|null) => void
 }
 
 export const UserContext = createContext<IUserContext>({

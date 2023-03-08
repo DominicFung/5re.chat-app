@@ -51,8 +51,10 @@ export const handler = async (event: AppSyncResolverEvent<{
   flatUser.apps = flatUser.apps.filter(item => item !== b.appId)
   if (flatUser.apps.length === 0) { console.error("Each user must have at least 1 app"); return }
   
+  console.log(JSON.stringify(flatUser))
   const u = marshall(flatUser)
-  console.log(u)
+  console.log(JSON.stringify(u))
+
   const res2 = await dynamo.send(
     new UpdateItemCommand({
       TableName: USER_TABLE_NAME, 
@@ -72,7 +74,7 @@ export const handler = async (event: AppSyncResolverEvent<{
   console.log(res3)
 
   const user = {
-    ...flatUser, apps: [app]
+    ...flatUser, apps: []
   } as _User
 
   for (const i of flatUser.apps) {

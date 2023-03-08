@@ -4,11 +4,13 @@ import { Amplify, API, graphqlOperation } from 'aws-amplify'
 import { GraphQLResult } from "@aws-amplify/api"
 import * as m from '@/src/graphql/mutations'
 
-import { _App } from '@/src/API'
+import { _App, _User } from '@/src/API'
 import backendSecret from '@/backend.secret.json'
 import awsConfig from '@/src/aws-exports'
 import createHttpError from 'http-errors'
 import { apiHandler } from '@/utils/api'
+
+import Iron from '@hapi/iron'
 
 const handler: NextApiHandler<_App> = async (req, res) => {
   const token = req.cookies.token
@@ -21,6 +23,16 @@ const handler: NextApiHandler<_App> = async (req, res) => {
   console.log(JSON.stringify(b, null, 2))
   if (!b || !b.appId) { throw createHttpError.BadRequest() }
 
+  const user = await Iron.unseal(token, backendSecret.seal, Iron.defaults) as _User
+  if (!user || !user.userId || !user.apps) { throw createHttpError.Unauthorized() }
+  console.log(user)
+
+  let appOwner = false
+  for (const a of user.apps) {
+    if (a?.appId === b.appId) { appOwner = true; break }
+  }
+
+  if (!appOwner) { throw createHttpError.Unauthorized() }
   Amplify.configure(awsConfig)
 
   let cc = 0

@@ -11,7 +11,7 @@ const USER_TABLE_NAME = process.env.USER_TABLE_NAME || ''
 const APP_TABLE_NAME = process.env.APP_TABLE_NAME || ''
 
 export const handler = async (event: AppSyncResolverEvent<{
-  masterSecret: string, userId: string, addApp?: string
+  masterSecret: string, userId: string, appName?: string
 }, null>) => {
   console.log(event)
   const b = event.arguments
@@ -45,7 +45,7 @@ export const handler = async (event: AppSyncResolverEvent<{
   const app = {
     appId: uuidv4(),
     userId: b.userId,
-    appName: b.addApp || "default",
+    appName: b.appName || "default",
     apiKey: uuidv4().replace(/-/g, ""),
     unseal: uuidv4().replace(/-/g, ""),
     discordGuildId: "",
@@ -75,7 +75,7 @@ export const handler = async (event: AppSyncResolverEvent<{
   console.log(res2)
 
   const user = {
-    ...flatUser, apps: [app]
+    ...flatUser, apps: []
   } as _User
 
   for (const i of apps) {
