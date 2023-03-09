@@ -8,8 +8,6 @@ import path from 'path'
 import { promises as fs } from 'fs'
 import { Suspense } from 'react'
 
-import './article.css'
-
 export default async function Topic({ params }: {params: { article: string } }) {
 
   const docsDir = path.join(process.cwd(), 'content', 'docs')
